@@ -1,0 +1,15 @@
+Epic Transform Shape game 		
+
+1. Create a map 
+2. Add a character
+3. Fog
+4. Different Vehicles
+5. Obstacles 
+6. Progression System
+7. Reward Meter
+8. Different levels 
+9. Stairs
+10. AI
+11. Cinemachine
+12. Save System
+13. Firebase
