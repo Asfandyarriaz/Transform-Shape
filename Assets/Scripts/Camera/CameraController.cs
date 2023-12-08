@@ -13,6 +13,11 @@ public class CameraController : MonoBehaviour
     //Flags
     private bool coroutineAllowed = true;
 
+    private void Awake()
+    {
+        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
+    }
+
     private void Start()
     {
         cam = this.gameObject.GetComponent<CinemachineVirtualCamera>();
@@ -20,18 +25,38 @@ public class CameraController : MonoBehaviour
     }
     private void Update()
     {
-        if (coroutineAllowed && Input.touchCount > 0) { StartCoroutine(ChangeFOV()); }
+        if (coroutineAllowed && Input.touchCount > 0)
+        {
+            StartCoroutine(ChangeFOV());
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Play);
+        }
+    }
+
+    void GameManagerOnGameStateChanged(GameManager.GameState state)
+    {
+        if(state == GameManager.GameState.Play) {
+            ResetFlags();
+        }
+    }
+    private void OnDestroy()
+    {
+        GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
     }
 
     IEnumerator ChangeFOV()
     {
         float time = 0;
         coroutineAllowed = false;
-        while(time < duration)
+        while (time < duration)
         {
-            cam.m_Lens.FieldOfView = Mathf.Lerp(startFOV,endFOV,curve.Evaluate(time/duration));
+            cam.m_Lens.FieldOfView = Mathf.Lerp(startFOV, endFOV, curve.Evaluate(time / duration));
             time += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
-    }    
+    }
+    
+    void ResetFlags()
+    {
+        coroutineAllowed = true;  
+    }
 }
