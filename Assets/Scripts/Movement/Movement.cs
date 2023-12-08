@@ -26,7 +26,6 @@ public class Movement : MonoBehaviour
     {
         if(state == GameManager.GameState.Play)
         {
-            playCoroutine = Play();
             StartCoroutine(playCoroutine);
         }
         else

@@ -25,18 +25,25 @@ public class CameraController : MonoBehaviour
     }
     private void Update()
     {
-        if (coroutineAllowed && Input.touchCount > 0)
+        if (GameManager.Instance.State == GameManager.GameState.Start)
         {
-            StartCoroutine(ChangeFOV());
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Play);
+            if (Input.touchCount > 0)
+            {
+                if (Input.GetTouch(0).phase == TouchPhase.Began)
+                {
+                    GameManager.Instance.UpdateGameState(GameManager.GameState.Play);
+                }
+            }
         }
     }
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-        if(state == GameManager.GameState.Play) {
+        if (state == GameManager.GameState.Play)
+            StartCoroutine(ChangeFOV());
+        else if (state == GameManager.GameState.Start)
             ResetFlags();
-        }
+
     }
     private void OnDestroy()
     {
@@ -54,9 +61,10 @@ public class CameraController : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
     }
-    
+
     void ResetFlags()
     {
-        coroutineAllowed = true;  
+        cam.m_Lens.FieldOfView = startFOV;
+        coroutineAllowed = true;
     }
 }
