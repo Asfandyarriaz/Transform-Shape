@@ -4,10 +4,16 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    [SerializeField] GameObject tranformObjectsArr;
-    [SerializeField] float speed;
+    [SerializeField] GameObject[] tranformObjectsArr;
     CharacterController characterController;
     IEnumerator playCoroutine;
+
+    //Variables
+    int vehicleIndex;
+    IInterfaceMovement movementBehaviorSriptAttachedObject;
+
+    //Flags
+    private bool hasCheckOnStateChange;
 
     #region State Handling
     /// <summary>
@@ -31,13 +37,14 @@ public class Movement : MonoBehaviour
         else
         {
             StopCoroutine(playCoroutine);
+            ResetFlags();
         }
     }
     #endregion
 
     private void Start()
     {
-        characterController = tranformObjectsArr.GetComponent<CharacterController>();
+        //characterController = tranformObjectsArr.GetComponent<CharacterController>();
         playCoroutine = Play();
     }
     #region GameLogic
@@ -48,11 +55,32 @@ public class Movement : MonoBehaviour
     {
         while(true)
         {
-            characterController.Move(Vector3.forward * speed * Time.deltaTime);
+            if (hasCheckOnStateChange){ CheckVehicleAndGetComponent(); }
+            movementBehaviorSriptAttachedObject.Movement();
             yield return null;
         }
     }
+    int CheckActiveVehicle()
+    {
+        for (int i = 0; i < tranformObjectsArr.Length; i++)
+        {
+            if (tranformObjectsArr[i].gameObject.activeSelf)
+            { return i; }    
+        }
+        return 0; //Return 0 by default
+    }
 
+    //TODO:Check Performance hit this function keeps running in update. Good practice ? 
+    private void CheckVehicleAndGetComponent()
+    {
+         vehicleIndex = CheckActiveVehicle();
+         movementBehaviorSriptAttachedObject = tranformObjectsArr[vehicleIndex].gameObject.GetComponent<IInterfaceMovement>();
+    }
+
+    private void ResetFlags()
+    {
+        hasCheckOnStateChange = true;
+    }
     public void OnClickChangeState()
     {
         GameManager.Instance.UpdateGameState(GameManager.GameState.Start);
