@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
 
 public class Movement : MonoBehaviour
 {
     [SerializeField] GameObject[] tranformObjectsArr;
-    CharacterController characterController;
+    [SerializeField] Transform startingPosition;
     IEnumerator playCoroutine;
 
     //Variables
@@ -39,12 +40,14 @@ public class Movement : MonoBehaviour
             StopCoroutine(playCoroutine);
             ResetFlags();
         }
+
+        if(state == GameManager.GameState.Start)
+            SetVehiclePosition();
     }
     #endregion
 
     private void Start()
     {
-        //characterController = tranformObjectsArr.GetComponent<CharacterController>();
         playCoroutine = Play();
     }
     #region GameLogic
@@ -60,26 +63,33 @@ public class Movement : MonoBehaviour
             yield return null;
         }
     }
-    int CheckActiveVehicle()
-    {
-        for (int i = 0; i < tranformObjectsArr.Length; i++)
-        {
-            if (tranformObjectsArr[i].gameObject.activeSelf)
-            { return i; }    
-        }
-        return 0; //Return 0 by default
-    }
-
     //TODO:Check Performance hit this function keeps running in update. Good practice ? 
     private void CheckVehicleAndGetComponent()
     {
          vehicleIndex = CheckActiveVehicle();
          movementBehaviorSriptAttachedObject = tranformObjectsArr[vehicleIndex].gameObject.GetComponent<IInterfaceMovement>();
     }
+    int CheckActiveVehicle()
+    {
+        for (int i = 0; i < tranformObjectsArr.Length; i++)
+        {
+            if (tranformObjectsArr[i].gameObject.activeSelf)
+            { return i; }
+        }
+        if (!tranformObjectsArr[0].gameObject.activeSelf) { tranformObjectsArr[0].gameObject.SetActive(true); }
 
+        return 0; //Return 0 by default
+    }
     private void ResetFlags()
     {
         hasCheckOnStateChange = true;
+    }
+    void SetVehiclePosition()
+    {
+        for(int i = 0;i <  tranformObjectsArr.Length;i++)
+        {
+            tranformObjectsArr[i].transform.position = startingPosition.position;
+        }
     }
     public void OnClickChangeState()
     {

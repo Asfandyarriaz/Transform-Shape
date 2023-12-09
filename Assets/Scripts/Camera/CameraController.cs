@@ -11,7 +11,6 @@ public class CameraController : MonoBehaviour
     CinemachineVirtualCamera cam;
 
     //Flags
-    private bool coroutineAllowed = true;
 
     private void Awake()
     {
@@ -53,7 +52,6 @@ public class CameraController : MonoBehaviour
     IEnumerator ChangeFOV()
     {
         float time = 0;
-        coroutineAllowed = false;
         while (time < duration)
         {
             cam.m_Lens.FieldOfView = Mathf.Lerp(startFOV, endFOV, curve.Evaluate(time / duration));
@@ -65,6 +63,5 @@ public class CameraController : MonoBehaviour
     void ResetFlags()
     {
         cam.m_Lens.FieldOfView = startFOV;
-        coroutineAllowed = true;
     }
 }

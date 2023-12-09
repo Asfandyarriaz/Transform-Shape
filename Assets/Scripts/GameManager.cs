@@ -28,24 +28,27 @@ public class GameManager : MonoBehaviour
             case GameState.Start: HandleStartState(); break;
             case GameState.Play: HandlePlayState(); break;
             case GameState.Win: HandleWinState(); break;
-            case GameState.Lose: break;
+            case GameState.Lose: HandleLoseState(); break;
             default: throw new ArgumentOutOfRangeException(nameof(State), newState, null);
         }
         OnGameStateChanged?.Invoke(newState);
-    }
-
-    private void HandlePlayState()
-    {
-        
     }
 
     private void HandleStartState()
     {
 
     }
+    private void HandlePlayState()
+    {
+
+    }
     private void HandleWinState()
     {
 
+    }
+    private void HandleLoseState()
+    {
+        
     }
 
     public enum GameState

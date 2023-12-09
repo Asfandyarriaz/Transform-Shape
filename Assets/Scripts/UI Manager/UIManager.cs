@@ -6,7 +6,10 @@ using static GameManager;
 public class UIManager : MonoBehaviour
 {
     [Header("Tap To Play Canvas")]
-    [SerializeField] Canvas playCanvas;
+    [SerializeField] GameObject TapToPlayCanvas;
+    [SerializeField] GameObject gameOverCanvas;
+
+
 
     private void Awake()
     {
@@ -17,9 +20,18 @@ public class UIManager : MonoBehaviour
     {
         GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
     }
+    public void OnClickRetry()
+    {
+        GameManager.Instance.UpdateGameState(GameState.Start);
+    }
 
     private void GameManagerOnGameStateChanged(GameState state)
     {
-        playCanvas.gameObject.SetActive(state == GameState.Start);
+        //if(state == GameState.Start)
+        TapToPlayCanvas.SetActive(state == GameState.Start);
+
+        //if (state == GameState.Lose)
+            gameOverCanvas.SetActive(state == GameState.Lose);
+
     }
 }
