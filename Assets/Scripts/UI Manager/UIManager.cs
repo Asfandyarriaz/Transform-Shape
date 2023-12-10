@@ -8,12 +8,13 @@ public class UIManager : MonoBehaviour
     [Header("Tap To Play Canvas")]
     [SerializeField] GameObject TapToPlayCanvas;
     [SerializeField] GameObject gameOverCanvas;
+    [SerializeField] GameObject vehicleSelectorCanvas;
 
 
 
     private void Awake()
     {
-        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged; 
+        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
     }
 
     private void OnDestroy()
@@ -31,7 +32,8 @@ public class UIManager : MonoBehaviour
         TapToPlayCanvas.SetActive(state == GameState.Start);
 
         //if (state == GameState.Lose)
-            gameOverCanvas.SetActive(state == GameState.Lose);
+        gameOverCanvas.SetActive(state == GameState.Lose);
 
+        vehicleSelectorCanvas.SetActive(state == GameState.Play);
     }
 }

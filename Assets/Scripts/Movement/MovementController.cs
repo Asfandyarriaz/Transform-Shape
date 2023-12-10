@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ProBuilder.MeshOperations;
 
-public class Movement : MonoBehaviour
+public class MovementController : MonoBehaviour
 {
-    [SerializeField] GameObject[] tranformObjectsArr;
+    [SerializeField] public GameObject[] tranformObjectsArr;
     [SerializeField] Transform startingPosition;
-    IEnumerator playCoroutine;
 
     //Variables
     int vehicleIndex;
@@ -15,6 +15,7 @@ public class Movement : MonoBehaviour
 
     //Flags
     private bool hasCheckOnStateChange;
+    private bool updateAllowed;
 
     #region State Handling
     /// <summary>
@@ -31,43 +32,41 @@ public class Movement : MonoBehaviour
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-        if(state == GameManager.GameState.Play)
+        if (state == GameManager.GameState.Play)
         {
-            StartCoroutine(playCoroutine);
+            updateAllowed = true;
         }
         else
         {
-            StopCoroutine(playCoroutine);
+            updateAllowed = false;
             ResetFlags();
         }
 
-        if(state == GameManager.GameState.Start)
+        if (state == GameManager.GameState.Start)
+        {
             SetVehiclePosition();
+        }
     }
     #endregion
 
-    private void Start()
-    {
-        playCoroutine = Play();
-    }
     #region GameLogic
     /// <summary>
     /// Game Logic
     /// </summary>
-    IEnumerator Play()
+    void Update()
     {
-        while(true)
+        if (updateAllowed)
         {
-            if (hasCheckOnStateChange){ CheckVehicleAndGetComponent(); }
+            if (hasCheckOnStateChange) { CheckVehicleAndGetComponent(); }
             movementBehaviorSriptAttachedObject.Movement();
-            yield return null;
         }
     }
     //TODO:Check Performance hit this function keeps running in update. Good practice ? 
     private void CheckVehicleAndGetComponent()
     {
-         vehicleIndex = CheckActiveVehicle();
-         movementBehaviorSriptAttachedObject = tranformObjectsArr[vehicleIndex].gameObject.GetComponent<IInterfaceMovement>();
+        vehicleIndex = CheckActiveVehicle();
+        movementBehaviorSriptAttachedObject = tranformObjectsArr[vehicleIndex].gameObject.GetComponent<IInterfaceMovement>();
+        hasCheckOnStateChange = false;
     }
     int CheckActiveVehicle()
     {
@@ -80,13 +79,24 @@ public class Movement : MonoBehaviour
 
         return 0; //Return 0 by default
     }
+    public GameObject CheckActiveVehicle(string check)
+    {
+        for (int i = 0; i < tranformObjectsArr.Length; i++)
+        {
+            if (tranformObjectsArr[i].gameObject.activeSelf)
+            { return tranformObjectsArr[i].gameObject; }
+        }
+        if (!tranformObjectsArr[0].gameObject.activeSelf) { tranformObjectsArr[0].gameObject.SetActive(true); }
+
+        return tranformObjectsArr[0].gameObject; //Return 0 by default
+    }
     private void ResetFlags()
     {
         hasCheckOnStateChange = true;
     }
     void SetVehiclePosition()
     {
-        for(int i = 0;i <  tranformObjectsArr.Length;i++)
+        for (int i = 0; i < tranformObjectsArr.Length; i++)
         {
             tranformObjectsArr[i].transform.position = startingPosition.position;
         }

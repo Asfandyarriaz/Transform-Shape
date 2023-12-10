@@ -8,6 +8,7 @@ public class CameraController : MonoBehaviour
     //Cinemachine Setting
     [SerializeField] float startFOV, endFOV, duration;
     [SerializeField] AnimationCurve curve;
+    [SerializeField] MovementController movementScript;
     CinemachineVirtualCamera cam;
 
     //Flags
@@ -30,7 +31,7 @@ public class CameraController : MonoBehaviour
             {
                 if (Input.GetTouch(0).phase == TouchPhase.Began)
                 {
-                    GameManager.Instance.UpdateGameState(GameManager.GameState.Play);
+                    GameManager.Instance.UpdateGameState(GameManager.GameState.Camera);
                 }
             }
         }
@@ -38,11 +39,13 @@ public class CameraController : MonoBehaviour
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-        if (state == GameManager.GameState.Play)
+        if (state == GameManager.GameState.Camera)
             StartCoroutine(ChangeFOV());
         else if (state == GameManager.GameState.Start)
             ResetFlags();
 
+        if(state != GameManager.GameState.Play)
+            CheckCurrentActiveObject();
     }
     private void OnDestroy()
     {
@@ -57,6 +60,15 @@ public class CameraController : MonoBehaviour
             cam.m_Lens.FieldOfView = Mathf.Lerp(startFOV, endFOV, curve.Evaluate(time / duration));
             time += Time.deltaTime;
             yield return new WaitForEndOfFrame();
+        }
+    }
+
+    void CheckCurrentActiveObject()
+    {
+        if (cam.Follow.name != movementScript.CheckActiveVehicle("ref").name)
+        {
+            cam.Follow = movementScript.CheckActiveVehicle("ref").transform;
+            cam.LookAt = movementScript.CheckActiveVehicle("ref").transform;
         }
     }
 
