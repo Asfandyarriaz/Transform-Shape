@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
     }
     private void HandleStartState()
     {
-       
+
     }
     private async void HandleCameraState()
     {
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
     }
     private void HandleLoseState()
     {
-       
+
     }
 
     public enum GameState

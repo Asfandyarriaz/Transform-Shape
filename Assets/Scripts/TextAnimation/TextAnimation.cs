@@ -19,18 +19,21 @@ public class TextAnimation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        textMesh.ForceMeshUpdate();
-        mesh = textMesh.mesh;
-        vertices = mesh.vertices;
-
-        for(int i = 0; i < vertices.Length; i++)
+        if (gameObject.activeSelf)
         {
-            Vector3 offset = Wobble(Time.time + i);
-            vertices[i] = vertices[i] + offset;
-        }
+            textMesh.ForceMeshUpdate();
+            mesh = textMesh.mesh;
+            vertices = mesh.vertices;
 
-        mesh.vertices = vertices;
-        textMesh.canvasRenderer.SetMesh(mesh);
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                Vector3 offset = Wobble(Time.time + i);
+                vertices[i] = vertices[i] + offset;
+            }
+
+            mesh.vertices = vertices;
+            textMesh.canvasRenderer.SetMesh(mesh);
+        }
     }
 
     Vector2 Wobble(float time)

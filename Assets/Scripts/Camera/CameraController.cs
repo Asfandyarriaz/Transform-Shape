@@ -9,9 +9,17 @@ public class CameraController : MonoBehaviour
     [SerializeField] float startFOV, endFOV, duration;
     [SerializeField] AnimationCurve curve;
     [SerializeField] MovementController movementScript;
-    CinemachineVirtualCamera cam;
+
+    //Change Camera Settings
+    [SerializeField] CinemachineVirtualCamera cam;
+    CinemachineOrbitalTransposer orbitalTransposer;
+
+    [Header("Follow offset ")]
+    [SerializeField] Vector3 followOffset;
+    private Vector3 tempFollowOffset;
 
     //Flags
+    bool changeToNew = true;
 
     private void Awake()
     {
@@ -22,6 +30,9 @@ public class CameraController : MonoBehaviour
     {
         cam = this.gameObject.GetComponent<CinemachineVirtualCamera>();
         cam.m_Lens.FieldOfView = startFOV;
+
+        orbitalTransposer = cam.GetCinemachineComponent<CinemachineOrbitalTransposer>();
+        tempFollowOffset = orbitalTransposer.m_FollowOffset;
     }
     private void Update()
     {
@@ -71,6 +82,34 @@ public class CameraController : MonoBehaviour
             cam.LookAt = movementScript.CheckActiveVehicle("ref").transform;
         }
     }
+    #region On Click Change Camera
+    public void OnClickChangeCamera()
+    {
+        
+        if (changeToNew)
+        {
+            StartCoroutine(Lerp(orbitalTransposer.m_FollowOffset, followOffset));
+            changeToNew = false;
+        }
+        else
+        {
+            StartCoroutine(Lerp(orbitalTransposer.m_FollowOffset, tempFollowOffset));
+            changeToNew = true;
+        }
+    }
+
+    IEnumerator Lerp(Vector3 start,Vector3 end)
+    {
+        float time = 0;
+        while(time < duration)
+        {
+            orbitalTransposer.m_FollowOffset = Vector3.Lerp(start, end, time/duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+        time = 0;
+    }
+    #endregion
 
     void ResetFlags()
     {

@@ -1,9 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+/// <summary>
+/// Controls Function on button click for transform buttons
+/// </summary>
+/// 
 
+//TODO: Change Hardcoded values
 public class ButtonController : MonoBehaviour
 {
+    [SerializeField] ParticleManager particleManagerScript;
     MovementController movementControllerScript;
     private void Start()
     {
@@ -13,12 +19,37 @@ public class ButtonController : MonoBehaviour
     {
         ChangeToObject("Character Walk", DisableCurrentActive()); //Set name same as object under TransformList object in hierarchy
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        //Play Audio
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
     }
 
     public void OnClickTransformCar()
     {
         ChangeToObject("Car", DisableCurrentActive());
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        //Play Audio
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+    }
+    public void OnClickTransformTank()
+    {
+        ChangeToObject("Tank", DisableCurrentActive());
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        //Play Audio
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+    }
+    public void OnClickTransformBoat()
+    {
+        ChangeToObject("Boat", DisableCurrentActive());
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        //Play Audio
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+    }
+    public void OnClickTransformPlane()
+    {
+        ChangeToObject("Airplane", DisableCurrentActive());
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        //Play Audio
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
     }
 
     Transform DisableCurrentActive()
@@ -42,7 +73,11 @@ public class ButtonController : MonoBehaviour
             if (movementControllerScript.tranformObjectsArr[i].name == transformToName)
             {
                 movementControllerScript.tranformObjectsArr[i].transform.position = currentPos.position;
+                Debug.Log("Change To Object Method");
                 movementControllerScript.tranformObjectsArr[i].SetActive(true);
+
+                //Set Particle as child and play
+                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform));
                 break;
             }
         }

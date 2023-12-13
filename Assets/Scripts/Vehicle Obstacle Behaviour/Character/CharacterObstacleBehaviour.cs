@@ -10,5 +10,11 @@ public class CharacterObstacleBehaviour : MonoBehaviour
             gameObject.SetActive(false);
             GameManager.Instance.UpdateGameState(GameManager.GameState.Lose);
         }
+
+        //Win Check
+        if (hit.gameObject.CompareTag("Win"))
+        {
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Win);
+        }
     }
 }
