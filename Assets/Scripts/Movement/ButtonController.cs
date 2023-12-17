@@ -11,6 +11,9 @@ public class ButtonController : MonoBehaviour
 {
     [SerializeField] ParticleManager particleManagerScript;
     MovementController movementControllerScript;
+
+    //Variables 
+    Quaternion resetRotation = Quaternion.Euler(0, 0, 0);
     private void Start()
     {
         movementControllerScript = GetComponent<MovementController>();
@@ -72,7 +75,10 @@ public class ButtonController : MonoBehaviour
         {
             if (movementControllerScript.tranformObjectsArr[i].name == transformToName)
             {
-                movementControllerScript.tranformObjectsArr[i].transform.position = currentPos.position;
+                //movementControllerScript.tranformObjectsArr[i].transform.position = currentPos.position;
+                Vector3 newPos = new Vector3(movementControllerScript.startingPosition.position.x, currentPos.position.y, currentPos.position.z);
+                movementControllerScript.tranformObjectsArr[i].transform.position = newPos;
+                movementControllerScript.tranformObjectsArr[i].transform.rotation = resetRotation;
                 Debug.Log("Change To Object Method");
                 movementControllerScript.tranformObjectsArr[i].SetActive(true);
 

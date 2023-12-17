@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class TankMovement : MonoBehaviour, IInterfaceMovement
 {
@@ -8,10 +9,18 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
    
     [SerializeField] public bool allowMove;
     [SerializeField] float slowDown;
+
+    [Header("Force")]
+    [SerializeField] float forceBackwards;
+    [SerializeField] float upwardsForce;
     Rigidbody rb;
 
+    [Header("Force Offset")]
+    [SerializeField] Vector3 upwardForceOffset;
+    [Header("Flags")]
     //Flags
-    [SerializeField] private bool runOnStart = true;
+    [SerializeField] public bool forceEffect = false;
+    [SerializeField] private float waitTimerForForceEffect;
 
     private void Awake()
     {
@@ -24,8 +33,7 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-        if (state != GameManager.GameState.Play)
-            runOnStart = true;
+      
     }
 
     void Start()
@@ -35,16 +43,30 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
 
     public void Movement()
     {
-        if (allowMove)
+        if (!forceEffect)
         {
-            if(runOnStart)
+            if (allowMove)
             {
-                rb.velocity = (Vector3.forward * vehicleProperties.speed);
+                rb.velocity = Vector3.forward * vehicleProperties.speed;
             }
-            if (rb.velocity.magnitude <= vehicleProperties.speed)
+            else
             {
-                rb.AddForce((Time.deltaTime * Vector3.forward) * vehicleProperties.speed, ForceMode.Impulse);
+                rb.velocity = new Vector3(0, -vehicleProperties.speed, 0);
             }
         }
+    }
+
+    public void ForceBack(Vector3 position)
+    {
+        forceEffect = true;
+        rb.AddForce(forceBackwards * Vector3.back, ForceMode.Impulse);
+        rb.AddForce((transform.up + upwardForceOffset) * upwardsForce, ForceMode.Impulse);
+        StartCoroutine(SetForceEffectToFalse());
+    }
+
+    IEnumerator SetForceEffectToFalse()
+    {
+        yield return new WaitForSeconds(waitTimerForForceEffect);
+        forceEffect = false;
     }
 }

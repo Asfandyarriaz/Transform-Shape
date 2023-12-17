@@ -3,10 +3,14 @@ using UnityEngine;
 public class TankObstacleBehaviour : MonoBehaviour
 {
     [SerializeField] TankMovement tankMovementScript;
+    [SerializeField] float rayCastLength;
+    [SerializeField] LayerMask groundLayer;
+    [SerializeField] Vector3 rayCastOffset;
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
+            tankMovementScript.ForceBack(collision.transform.position);
             collision.gameObject.SetActive(false);
             //Play Audio
             AudioManager.Instance.PlaySFX(AudioManager.Instance.objectBreakSound);
@@ -25,5 +29,28 @@ public class TankObstacleBehaviour : MonoBehaviour
         {
             GameManager.Instance.UpdateGameState(GameManager.GameState.Win);
         }
+    }
+    private void Update()
+    {
+        if (IsGrounded())
+        {
+            tankMovementScript.allowMove = true;
+        }
+        else
+        {
+            tankMovementScript.allowMove = false;
+        }
+    }
+    bool IsGrounded()
+    {
+        RaycastHit hit;
+        Vector3 rayCastOrigin = (transform.position + rayCastOffset);
+
+        Debug.DrawRay(rayCastOrigin, Vector3.down * rayCastLength, Color.green);
+        if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, rayCastLength, groundLayer))
+        {
+            return true;
+        }
+        return false;
     }
 }

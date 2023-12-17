@@ -6,6 +6,9 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
 {
     [SerializeField] VehicleProperties vehicleProperties;
     CharacterController characterController;
+    public bool allowMove;
+    public bool isOnGround;
+    public bool isClimbable;
     // Start is called before the first frame update
     void Start()
     {
@@ -14,6 +17,21 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
 
     public void Movement()
     {
-        characterController.Move(Vector3.forward * vehicleProperties.speed * Time.deltaTime);
+        if (allowMove)
+        {
+            if (isClimbable)
+            {
+                characterController.Move(Vector3.up * vehicleProperties.speed * Time.deltaTime);
+            }
+            else
+            {
+                characterController.Move(Vector3.forward * vehicleProperties.speed * Time.deltaTime);
+            }
+        }
+        else
+        {
+            characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime);
+        }
+        if(!isOnGround && !isClimbable) { characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime); }
     }
 }

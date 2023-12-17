@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class AirplaneObstacleBehaviour : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    BezierFollow bezierFollowScipt;
+    private void OnCollisionEnter(Collision collision)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if(collision.gameObject.CompareTag("Fly"))
+        {
+            bezierFollowScipt.startBezierCurve = true;
+        }
     }
 }

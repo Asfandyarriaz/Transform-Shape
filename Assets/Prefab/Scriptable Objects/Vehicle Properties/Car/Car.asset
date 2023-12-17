@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f377efe5d60a914f94514afde0e7a5c, type: 3}
   m_Name: Car
   m_EditorClassIdentifier: 
-  speed: 10
-  upgradeLevel: 0
+  speed: 17
+  currentUpgradeLevel: 0

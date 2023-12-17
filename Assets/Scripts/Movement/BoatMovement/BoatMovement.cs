@@ -20,5 +20,9 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
             rb.AddForce((Time.deltaTime * Vector3.forward) * vehicleProperties.speed, ForceMode.Impulse);
             rb.velocity = (Vector3.forward * vehicleProperties.speed);
         }
+        else
+        {
+            rb.velocity = (Vector3.down * vehicleProperties.speed);
+        }
     }
 }

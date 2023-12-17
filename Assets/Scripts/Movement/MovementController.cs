@@ -7,7 +7,7 @@ using UnityEngine.ProBuilder.MeshOperations;
 public class MovementController : MonoBehaviour
 {
     [SerializeField] public GameObject[] tranformObjectsArr;
-    [SerializeField] Transform startingPosition;
+    [SerializeField] public Transform startingPosition;
 
     //Variables
     int vehicleIndex;
