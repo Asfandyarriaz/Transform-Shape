@@ -9,6 +9,8 @@ TagManager:
   - Water
   - Climbable
   - Fly
+  - Ramp
+  - Biketrail
   layers:
   - Default
   - TransparentFX

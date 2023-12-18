@@ -5,7 +5,7 @@ using static GameManager;
 /// <summary>
 /// I know Tyre, typo chill 
 /// </summary>
-public class RotateTire : MonoBehaviour
+public class RotateObjects : MonoBehaviour
 {
     [SerializeField] GameObject[] objectToRotate;
     private Rigidbody rb;

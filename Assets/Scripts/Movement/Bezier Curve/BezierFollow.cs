@@ -15,10 +15,12 @@ public class BezierFollow : MonoBehaviour
     [SerializeField] public float speedModifier;
 
     public bool startBezierCurve;
+    public bool bezierRunning;
 
     // Start is called before the first frame update
     void Start()
     {
+        bezierRunning = false;
         routeToGo = 0;
         tParam = 0f;
     }
@@ -35,6 +37,7 @@ public class BezierFollow : MonoBehaviour
     private IEnumerator GoByTheRoute(int routeNum)
     {
         startBezierCurve = false;
+        bezierRunning = true;
 
         Vector3 p0 = routes[routeNum].GetChild(0).position;
         Vector3 p1 = routes[routeNum].GetChild(1).position;
@@ -58,5 +61,6 @@ public class BezierFollow : MonoBehaviour
         {
             routeToGo = 0;
         }
+        bezierRunning = false;
     }
 }
