@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Airplane
   m_EditorClassIdentifier: 
   speed: 0.2
-  currentUpgradeLevel: 0
+  currentUpgradeLevel: 1

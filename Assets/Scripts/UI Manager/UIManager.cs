@@ -1,5 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using TMPro;
 using UnityEngine;
 using static GameManager;
 
@@ -10,9 +10,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject gameOverCanvas;
     [SerializeField] GameObject victoryCanvas;
     [SerializeField] GameObject vehicleSelectorCanvas;
+    [SerializeField] GameObject progressionScreenCanvas;
+    [SerializeField] TMP_Text cashText;
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
+    }
+
+    private void Start()
+    {
+        DisplayCash();
     }
 
     private void OnDestroy()
@@ -31,7 +38,18 @@ public class UIManager : MonoBehaviour
         //if (state == GameState.Win)
         victoryCanvas.SetActive(state == GameState.Win);
 
+        //if (state == GameState.Progression Screen)
+        progressionScreenCanvas.SetActive(state == GameState.ProgressionScreen);
+
+        //if (state == GameState.Play)
         vehicleSelectorCanvas.SetActive(state == GameState.Play);
+
+        //if(state != GameState.Start)
+        cashText.gameObject.SetActive(state != GameState.Start);
+    }
+    private void Update()
+    {
+        DisplayCash();
     }
     public void OnClickRetry()
     {
@@ -43,5 +61,12 @@ public class UIManager : MonoBehaviour
     {
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+    }
+
+    
+
+    void DisplayCash()
+    {
+        cashText.text = "Cash: " + GameManager.Instance.totalCash.ToString();
     }
 }

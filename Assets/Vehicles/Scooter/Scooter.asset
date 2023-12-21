@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Scooter
   m_EditorClassIdentifier: 
   speed: 8.5
-  currentUpgradeLevel: 0
+  currentUpgradeLevel: 1

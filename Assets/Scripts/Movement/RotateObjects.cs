@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
 using static GameManager;
 /// <summary>
 /// I know Tyre, typo chill 

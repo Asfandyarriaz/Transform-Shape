@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class ParticleManager : MonoBehaviour
 {
-    [SerializeField] public GameObject transformParticle;
+    [SerializeField] public GameObject transformParticlePlayer;
+    [SerializeField] public GameObject transformParticleAI;
+    [SerializeField] public GameObject transformParticleAI2;
+    [SerializeField] public GameObject transformParticleAI3;
+    [SerializeField] private float transformParticleDuration;
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -20,21 +24,21 @@ public class ParticleManager : MonoBehaviour
             //Play Particles
     }
 
-    public IEnumerator PlayTransformParticle(Transform vehicle)
+    public IEnumerator PlayTransformParticle(Transform vehicle, GameObject particle)
     {
-        transformParticle.transform.SetParent(vehicle);
-        transformParticle.transform.localPosition = new Vector3(0, 0, 0);
+        particle.transform.SetParent(vehicle);
+        particle.transform.localPosition = new Vector3(0, 0, 0);
         float time = 0;
         bool runOnce = true;
-        while (time < 1)
+        while (time < transformParticleDuration)
         {
             if (runOnce)
             {
-                transformParticle.SetActive(true);
+                particle.SetActive(true);
                 runOnce = false;
             }
             yield return null;
         }
-        transformParticle.SetActive(false);
+        particle.SetActive(false);
     }
 }

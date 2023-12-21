@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Player Walk
   m_EditorClassIdentifier: 
   speed: 5
-  currentUpgradeLevel: 0
+  currentUpgradeLevel: 3

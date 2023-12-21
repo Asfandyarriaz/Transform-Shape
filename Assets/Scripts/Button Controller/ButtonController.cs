@@ -62,7 +62,7 @@ public class ButtonController : MonoBehaviour
 
     Transform DisableCurrentActive()
     {
-        for(int i = 0; i < movementControllerScript.tranformObjectsArr.Length; i++) 
+        for (int i = 0; i < movementControllerScript.tranformObjectsArr.Length; i++)
         {
             if (movementControllerScript.tranformObjectsArr[i].activeSelf)
             {
@@ -88,9 +88,11 @@ public class ButtonController : MonoBehaviour
                 movementControllerScript.tranformObjectsArr[i].SetActive(true);
 
                 //Set Particle as child and play
-                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform));
+                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform, particleManagerScript.transformParticleAI));              
                 break;
             }
         }
     }
+
+    
 }

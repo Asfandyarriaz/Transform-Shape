@@ -53,7 +53,7 @@ public class MovementController : MonoBehaviour
     /// <summary>
     /// Game Logic
     /// </summary>
-    void Update()
+    void FixedUpdate()
     {
         if (updateAllowed)
         {

@@ -1,12 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class TankMovement : MonoBehaviour, IInterfaceMovement
 {
     [SerializeField] VehicleProperties vehicleProperties;
-   
+
     [SerializeField] public bool allowMove;
     [SerializeField] float slowDown;
 
@@ -18,9 +16,18 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
     [Header("Force Offset")]
     [SerializeField] Vector3 upwardForceOffset;
     [Header("Flags")]
+
+    [Header("Speed")]
+    [SerializeField] private float speed;
+
+    [Header("Speed Increment")]
+    [SerializeField] private float incrementSpeedPercentage;
     //Flags
     [SerializeField] public bool forceEffect = false;
     [SerializeField] private float waitTimerForForceEffect;
+
+    //Variables 
+    private bool runOnce = false;
 
     private void Awake()
     {
@@ -33,7 +40,15 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-      
+        if (state == GameManager.GameState.Start)
+        {
+            runOnce = true;
+        }
+        if (state == GameManager.GameState.Play)
+        {
+            speed = vehicleProperties.speed;
+            IncrementSpeed();
+        }
     }
 
     void Start()
@@ -47,11 +62,11 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
         {
             if (allowMove)
             {
-                rb.velocity = Vector3.forward * vehicleProperties.speed;
+                rb.velocity = Vector3.forward * speed;
             }
             else
             {
-                rb.velocity = new Vector3(0, -vehicleProperties.speed, 0);
+                rb.velocity = new Vector3(0, -speed, 0);
             }
         }
     }
@@ -68,5 +83,16 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
     {
         yield return new WaitForSeconds(waitTimerForForceEffect);
         forceEffect = false;
+    }
+
+    //5 % Increment with each level
+    void IncrementSpeed()
+    {
+        if (vehicleProperties.currentUpgradeLevel > 1 && runOnce != true)
+        {
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel;
+            speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
+            runOnce = true;
+        }
     }
 }

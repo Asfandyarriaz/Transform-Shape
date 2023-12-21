@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Tank
   m_EditorClassIdentifier: 
   speed: 9.5
-  currentUpgradeLevel: 0
+  currentUpgradeLevel: 1

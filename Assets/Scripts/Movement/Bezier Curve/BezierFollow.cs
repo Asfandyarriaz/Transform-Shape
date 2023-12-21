@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BezierFollow : MonoBehaviour
@@ -16,6 +15,7 @@ public class BezierFollow : MonoBehaviour
 
     public bool startBezierCurve;
     public bool bezierRunning;
+    public bool bezierCompleted;
 
     // Start is called before the first frame update
     void Start()
@@ -38,6 +38,7 @@ public class BezierFollow : MonoBehaviour
     {
         startBezierCurve = false;
         bezierRunning = true;
+        bezierCompleted = false;
 
         Vector3 p0 = routes[routeNum].GetChild(0).position;
         Vector3 p1 = routes[routeNum].GetChild(1).position;
@@ -62,5 +63,6 @@ public class BezierFollow : MonoBehaviour
             routeToGo = 0;
         }
         bezierRunning = false;
+        bezierCompleted = true;
     }
 }

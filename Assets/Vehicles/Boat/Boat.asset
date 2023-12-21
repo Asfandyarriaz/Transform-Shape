@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Boat
   m_EditorClassIdentifier: 
   speed: 7
-  currentUpgradeLevel: 0
+  currentUpgradeLevel: 1

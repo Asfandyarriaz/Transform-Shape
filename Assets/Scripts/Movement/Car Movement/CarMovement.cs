@@ -8,6 +8,14 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
 
     Rigidbody rb;
 
+    [Header("Speed")]
+    [SerializeField] private float speed;
+
+    [Header("Speed Increment")]
+    [SerializeField] private float incrementSpeedPercentage = 5f;
+
+    //Flags
+    private bool runOnce = false;
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -19,7 +27,15 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-
+        if (state == GameManager.GameState.Start)
+        {
+            runOnce = true;
+        }
+        if (state == GameManager.GameState.Play)
+        {
+            speed = vehicleProperties.speed;
+            IncrementSpeed();
+        }
     }
 
     void Start()
@@ -37,6 +53,17 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
         else
         {
             rb.velocity = new Vector3(0, -vehicleProperties.speed, 0);
+        }
+    }
+
+    //5 % Increment with each level
+    void IncrementSpeed()
+    {
+        if (vehicleProperties.currentUpgradeLevel > 1 && runOnce != true)
+        {
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel;
+            speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
+            runOnce = true;
         }
     }
 }

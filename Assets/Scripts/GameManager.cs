@@ -10,6 +10,9 @@ public class GameManager : MonoBehaviour
 
     public static event Action<GameState> OnGameStateChanged;
 
+    //Global Varaibles
+    public int totalCash;
+
     private void Awake()
     {
         Instance = this;
@@ -30,15 +33,20 @@ public class GameManager : MonoBehaviour
             case GameState.Camera: HandleCameraState(); break;
             case GameState.Play: HandlePlayState(); break;
             case GameState.Transform: HandleTransformState(); break;
+            case GameState.ProgressionScreen: HandleProgressionScreenState(); break;
+            case GameState.NextVehicleProgress: HandleNextVehicleProgressState(); break;
             case GameState.Win: HandleWinState(); break;
             case GameState.Lose: HandleLoseState(); break;
             default: throw new ArgumentOutOfRangeException(nameof(State), newState, null);
         }
         OnGameStateChanged?.Invoke(newState);
     }
+
+    
+
     private void HandleStartState()
     {
-
+        
     }
     private async void HandleCameraState()
     {
@@ -53,6 +61,10 @@ public class GameManager : MonoBehaviour
         await Task.Delay(1);
         UpdateGameState(GameState.Play);
     }
+    private void HandleProgressionScreenState()
+    {
+        
+    }
     private void HandleWinState()
     {
 
@@ -61,14 +73,38 @@ public class GameManager : MonoBehaviour
     {
 
     }
+    private void HandleNextVehicleProgressState()
+    {
 
+    }
     public enum GameState
     {
         Start,
         Camera,
         Play,
         Transform,
+        NextVehicleProgress,
+        ProgressionScreen,
         Win,
         Lose
     }
+
+
+    #region Game Data Logic
+    public void UpdateCash(int cash)
+    {
+        Instance.totalCash += cash;
+    }
+    public void DeductCash(int cash)
+    {
+        if(cash <= totalCash)
+        {
+            totalCash -= cash;
+        }
+        else
+        {
+            Debug.LogWarning("Not Enough Cash");
+        }
+    }
+    #endregion
 }

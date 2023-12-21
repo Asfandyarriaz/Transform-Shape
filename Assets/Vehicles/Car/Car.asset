@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Car
   m_EditorClassIdentifier: 
   speed: 15
-  currentUpgradeLevel: 0
+  currentUpgradeLevel: 1

@@ -27,7 +27,7 @@ public class TankObstacleBehaviour : MonoBehaviour
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Win);
+            GameManager.Instance.UpdateGameState(GameManager.GameState.ProgressionScreen);
         }
     }
     private void Update()

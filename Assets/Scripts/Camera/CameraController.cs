@@ -1,6 +1,5 @@
 using Cinemachine;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -12,7 +11,7 @@ public class CameraController : MonoBehaviour
 
     //Change Camera Settings
     [SerializeField] CinemachineVirtualCamera cam;
-    CinemachineOrbitalTransposer orbitalTransposer;
+    CinemachineTransposer Transposer;
 
     [Header("Follow offset ")]
     [SerializeField] Vector3 followOffset;
@@ -31,8 +30,8 @@ public class CameraController : MonoBehaviour
         cam = this.gameObject.GetComponent<CinemachineVirtualCamera>();
         cam.m_Lens.FieldOfView = startFOV;
 
-        orbitalTransposer = cam.GetCinemachineComponent<CinemachineOrbitalTransposer>();
-        tempFollowOffset = orbitalTransposer.m_FollowOffset;
+        Transposer = cam.GetCinemachineComponent<CinemachineTransposer>();
+        tempFollowOffset = Transposer.m_FollowOffset;
     }
     private void Update()
     {
@@ -88,12 +87,12 @@ public class CameraController : MonoBehaviour
         
         if (changeToNew)
         {
-            StartCoroutine(Lerp(orbitalTransposer.m_FollowOffset, followOffset));
+            StartCoroutine(Lerp(Transposer.m_FollowOffset, followOffset));
             changeToNew = false;
         }
         else
         {
-            StartCoroutine(Lerp(orbitalTransposer.m_FollowOffset, tempFollowOffset));
+            StartCoroutine(Lerp(Transposer.m_FollowOffset, tempFollowOffset));
             changeToNew = true;
         }
     }
@@ -103,7 +102,7 @@ public class CameraController : MonoBehaviour
         float time = 0;
         while(time < duration)
         {
-            orbitalTransposer.m_FollowOffset = Vector3.Lerp(start, end, time/duration);
+            Transposer.m_FollowOffset = Vector3.Lerp(start, end, time/duration);
             time += Time.deltaTime;
             yield return null;
         }
