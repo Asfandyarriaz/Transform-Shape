@@ -18,9 +18,6 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     [SerializeField] private float waitTimerForForceEffect;
     private bool runOnce = false;
 
-    //Variables
-    PlayerData playerData;
-
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -34,12 +31,10 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            playerData = SaveManager.Instance.LoadData();
-            runOnce = true;
+            runOnce = false;
         }
         if (state == GameManager.GameState.Play)
-        {
-            speed = vehicleProperties.speed;
+        {         
             IncrementSpeed();
         }
     }
@@ -53,7 +48,7 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     {
             if (allowMove)
             {
-                rb.velocity = Vector3.forward * speed;
+                rb.velocity = Vector3.forward * vehicleProperties.speed;
             }
             else
             {
@@ -62,10 +57,12 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     }
     void IncrementSpeed()
     {
-        if (playerData.GetScooterLevel() > 1 && runOnce != true)
-        {
-            incrementSpeedPercentage *= playerData.GetScooterLevel();
+        speed = vehicleProperties.speed;
+        if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
+        {          
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel - 1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
+            runOnce = true;
         }
     }
 }

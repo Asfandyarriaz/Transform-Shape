@@ -18,7 +18,6 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
 
     //Flags
     private bool runOnce = false;
-
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -32,11 +31,11 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            runOnce = true;
+            runOnce = false;
         }
         if (state == GameManager.GameState.Play)
         {
-            speed = vehicleProperties.speed;
+            
             IncrementSpeed();
         }
     }
@@ -52,16 +51,16 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
         {
             if (isClimbable)
             {
-                characterController.Move(Vector3.up * speed * Time.deltaTime);
+                characterController.Move(Vector3.up * vehicleProperties.speed * Time.deltaTime);
             }
             else
             {
-                characterController.Move(Vector3.forward * speed * Time.deltaTime);
+                characterController.Move(Vector3.forward * vehicleProperties.speed * Time.deltaTime);
             }
         }
         else
         {
-            characterController.Move(Vector3.down * speed * Time.deltaTime);
+            characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime);
         }
         if(!isOnGround && !isClimbable) { characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime); }
     }
@@ -69,10 +68,10 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
     //5 % Increment with each level
     void IncrementSpeed()
     {
-
-        if (vehicleProperties.currentUpgradeLevel > 1 && runOnce != true)
-        {
-            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel;
+        speed = vehicleProperties.speed;
+        if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
+        {         
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel -1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;
         }

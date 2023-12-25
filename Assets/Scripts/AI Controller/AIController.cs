@@ -35,7 +35,7 @@ public class AIController : MonoBehaviour
             ResetFlags();
         }
 
-        if (state == GameManager.GameState.Start)
+        if (state == GameManager.GameState.SetupGameData || state == GameManager.GameState.Start)
         {
             SetInitialVehicleIfAllInactive();
             SetVehiclePosition();

@@ -29,11 +29,12 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            runOnce = true;
+            runOnce = false;
         }
+
         if (state == GameManager.GameState.Play)
         {
-            speed = vehicleProperties.speed;
+            
             IncrementSpeed();
         }
     }
@@ -59,9 +60,10 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
     //5 % Increment with each level
     void IncrementSpeed()
     {
+        speed = vehicleProperties.speed;
         if (vehicleProperties.currentUpgradeLevel > 1 && runOnce != true)
-        {
-            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel;
+        {          
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel -1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;
         }

@@ -56,6 +56,9 @@ public class CameraController : MonoBehaviour
 
         if(state != GameManager.GameState.Play)
             CheckCurrentActiveObject();
+
+        if (state == GameManager.GameState.Cash)
+            this.gameObject.SetActive(false);
     }
     private void OnDestroy()
     {
@@ -113,5 +116,6 @@ public class CameraController : MonoBehaviour
     void ResetFlags()
     {
         cam.m_Lens.FieldOfView = startFOV;
+        if(!gameObject.activeSelf) { gameObject.SetActive(true); }
     }
 }

@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 /// <summary>
 /// Controls Function on button click for transform buttons
 /// </summary>
@@ -10,8 +12,36 @@ public class ButtonController : MonoBehaviour
     [SerializeField] ParticleManager particleManagerScript;
     MovementController movementControllerScript;
 
+    [Header("Buttons")]
+    [SerializeField] Image[] buttonArray;                //0.Character 1.Car 2.Tank 3.Scooter 4.Boat 5.Airplane
+    [SerializeField] Vector3 selectedScale = new Vector3(1.2f, 1.2f, 1.2f);
+
+    [Header("Images")]
+    [SerializeField] Sprite currentSelectedImage;
+    [SerializeField] Sprite deselectedImage;
+
     //Variables 
     Quaternion resetRotation = Quaternion.Euler(0, 0, 0);
+
+    private void Awake()
+    {
+        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
+    }
+
+    //TODO: Get current level from save system
+    void GameManagerOnGameStateChanged(GameManager.GameState state)
+    {
+        if (state == GameManager.GameState.Start)
+        {
+            SetCurrentActiveVehicleSpriteImage();
+        }
+    }
+
     private void Start()
     {
         movementControllerScript = GetComponent<MovementController>();
@@ -22,6 +52,8 @@ public class ButtonController : MonoBehaviour
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+
+        SetBackgroundImageAndDeselectAllOthers(0);
     }
 
     public void OnClickTransformCar()
@@ -30,6 +62,8 @@ public class ButtonController : MonoBehaviour
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+
+        SetBackgroundImageAndDeselectAllOthers(1);
     }
     public void OnClickTransformTank()
     {
@@ -37,6 +71,8 @@ public class ButtonController : MonoBehaviour
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+
+        SetBackgroundImageAndDeselectAllOthers(2);
     }
     public void OnClickTransformBoat()
     {
@@ -44,6 +80,8 @@ public class ButtonController : MonoBehaviour
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+
+        SetBackgroundImageAndDeselectAllOthers(4);
     }
     public void OnClickTransformPlane()
     {
@@ -51,6 +89,12 @@ public class ButtonController : MonoBehaviour
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+
+        SetBackgroundImageAndDeselectAllOthers(5);
+
+        //Manually set the y position higher to avoid plane clipping into ground
+        Vector3 position = movementControllerScript.tranformObjectsArr[5].transform.position;
+        position = new Vector3(position.x, position.y + 10f, position.z);
     }
     public void OnClickTransformScooter()
     {
@@ -58,6 +102,8 @@ public class ButtonController : MonoBehaviour
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+
+        SetBackgroundImageAndDeselectAllOthers(3);
     }
 
     Transform DisableCurrentActive()
@@ -88,11 +134,46 @@ public class ButtonController : MonoBehaviour
                 movementControllerScript.tranformObjectsArr[i].SetActive(true);
 
                 //Set Particle as child and play
-                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform, particleManagerScript.transformParticleAI));              
+                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform, particleManagerScript.transformParticleAI));
                 break;
             }
         }
     }
 
-    
+    void SetBackgroundImageAndDeselectAllOthers(int index)
+    {
+
+        for (int i = 0; i < buttonArray.Length; i++)
+        {
+            if (i == index)
+            {
+                buttonArray[i].sprite = currentSelectedImage;
+                buttonArray[i].gameObject.transform.localScale = selectedScale;
+            }
+            else
+            {
+                buttonArray[i].sprite = deselectedImage;
+                buttonArray[i].gameObject.transform.localScale = new Vector3(1, 1, 1);
+            }
+
+        }
+    }
+
+    void SetCurrentActiveVehicleSpriteImage()
+    {
+        for (int i = 0; i < movementControllerScript.tranformObjectsArr.Length; i++)
+        {
+            if (movementControllerScript.tranformObjectsArr[i].gameObject.activeSelf)
+            {
+                buttonArray[i].sprite = currentSelectedImage;
+                buttonArray[i].gameObject.transform.localScale = selectedScale;
+                
+            }
+            else
+            {
+                buttonArray[i].sprite = deselectedImage;
+                buttonArray[i].gameObject.transform.localScale = new Vector3(1, 1, 1);
+            }
+        }
+    }
 }

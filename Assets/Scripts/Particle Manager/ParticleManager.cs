@@ -9,6 +9,10 @@ public class ParticleManager : MonoBehaviour
     [SerializeField] public GameObject transformParticleAI2;
     [SerializeField] public GameObject transformParticleAI3;
     [SerializeField] private float transformParticleDuration;
+
+    [Header("Win Particles")]
+    [SerializeField] public GameObject confettiParticles1;
+    [SerializeField] public GameObject confettiParticles2;
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;

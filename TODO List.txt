@@ -1,15 +1,16 @@
 Epic Transform Shape game 		
 
-1. Create a map 
-2. Add a character
-3. Fog
-4. Different Vehicles
-5. Obstacles 
-6. Progression System
-7. Reward Meter
-8. Different levels 
-9. Stairs
-10. AI
-11. Cinemachine
-12. Save System
-13. Firebase
+1. Create a map    - Done
+2. Add a character  - Done
+3. Fog               - Done
+4. Different Vehicles  -Done
+5. Obstacles           -Done
+6. Progression System   - Done (Buggy)
+7. Reward Meter         -Not Completeted
+8. Different levels     - Done
+9. Stairs                -Done
+10. AI                 -Done (Still Needs Fixing Car Change)
+11. Cinemachine       -Done (Win Condition Camera Left)
+12. Save System       -Done
+13. Firebase          -Not Completed
+14. Ads                -Not Completed

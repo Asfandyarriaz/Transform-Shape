@@ -1,13 +1,18 @@
 using UnityEngine;
 using TMPro;
 using System;
-
+using UnityEngine.UI;
 /// <summary>
 /// This script controls the functionality of Progression Screen
 /// The buttons functionality is implemented in this script
 /// Purpose of this script is to display what upgrades can be done according to the gold/cash in hand
 /// and update save values with vehicle upgrade level
 /// </summary>
+/// 
+
+//TODO: HardCoded Values in this code Fix 
+
+//Load Data is called in this script
 public class ProgressionScreen : MonoBehaviour
 {
     [Header("ORDER MATTERS")]                                         //IMP !! Same as Array
@@ -18,7 +23,7 @@ public class ProgressionScreen : MonoBehaviour
     [SerializeField] private GameObject[] costImage;
     [SerializeField] private GameObject[] watchAdButtons;
     [SerializeField] private TMP_Text[] upgradeButtonsText;
-    [SerializeField] private TMP_Text[] currentLevelText;
+    [SerializeField] private GameObject[] currentLevelStars;
 
     [Header("Upgrade Cost Setting")]
     [SerializeField] private int baseCost;
@@ -27,8 +32,6 @@ public class ProgressionScreen : MonoBehaviour
     [Header("Count Varaible To Tell Number of Button Active")]
     [SerializeField] int count = -1;
 
-    //Variables
-    //PlayerData playerData = new PlayerData();
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -41,10 +44,7 @@ public class ProgressionScreen : MonoBehaviour
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
         if (state == GameManager.GameState.Start)
-        {
             SetAllObjectsOff();
-            playerData = SaveManager.Instance.LoadData();
-        }
 
         if (state == GameManager.GameState.ProgressionScreen)
         {
@@ -52,11 +52,14 @@ public class ProgressionScreen : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        //Load Data
+
+    }
     private void Update()
     {
-
-            Debug.Log("Count : " + count);
-        
+        Debug.Log("Count : " + count);
     }
 
     //TODO: FIX BUG !!
@@ -64,9 +67,9 @@ public class ProgressionScreen : MonoBehaviour
     //If upgrade one thats its cost crosses the total amount 
     //it will disappear 
 
-    //TODO: Implement incremental speed changes 
-    //TODO: Implement Upgraded speed to all the vehicles 
-    //TODO: Implement Save Manager
+    //TODO: Implement incremental speed changes (Completed)
+    //TODO: Implement Upgraded speed to all the vehicles (Completed) 
+    //TODO: Implement Save Manager (Completed)
 
     /// <summary>
     /// On start show 3 upgrade options 
@@ -79,16 +82,17 @@ public class ProgressionScreen : MonoBehaviour
     /// </summary>
     void Upgradeable()
     {
+        ResetInteractable();
         float cost = 0;
 
         for (int i = 0; i < vehicleProperties.Length; i++)
         {
             cost = GetCurrentCost(vehicleProperties[i].currentUpgradeLevel);
-            if (cost <= GameManager.Instance.totalCash)
-            {
-                count++;
+            if (cost <= PlayerDataController.Instance.playerData.PlayerGold)
+            {             
                 upgradeButtonsText[i].text = cost.ToString();
                 SetObjects(i);
+                count++;
                 if (count == 2)
                     break;
             }
@@ -100,9 +104,8 @@ public class ProgressionScreen : MonoBehaviour
                 if (count < 2)
                 {
                     SetObjects(i, true);
-                    count++;
                 }
-                else
+                else if(count == 3)
                     break;
             }
         }
@@ -112,10 +115,12 @@ public class ProgressionScreen : MonoBehaviour
             {
                 if (upgradeButtons[i].activeSelf)
                 {
-                    if (GetCurrentCost(vehicleProperties[i].currentUpgradeLevel) > GameManager.Instance.totalCash)
+                    if (GetCurrentCost(vehicleProperties[i].currentUpgradeLevel) > PlayerDataController.Instance.playerData.PlayerGold)
                     {
                         costImage[i].SetActive(false);
                         watchAdButtons[i].SetActive(true);
+                        Button button = upgradeButtons[i].gameObject.GetComponent<Button>();
+                        button.interactable = false;
                     }
                 }
             }
@@ -140,14 +145,36 @@ public class ProgressionScreen : MonoBehaviour
     void SetObjects(int index)
     {
         upgradeButtons[index].SetActive(true);
-        currentLevelText[index].text = "Level " + vehicleProperties[index].currentUpgradeLevel.ToString();
+        for (int i = 0; i < vehicleProperties[index].currentUpgradeLevel - 1; i++)
+        {
+            if (!currentLevelStars[index].transform.GetChild(i).gameObject.activeSelf)
+            {
+                currentLevelStars[index].transform.GetChild(i).gameObject.SetActive(true);
+            }
+        }
     }
     void SetObjects(int index, bool check)
     {
         if (!upgradeButtons[index].activeSelf)
         {
             upgradeButtons[index].SetActive(true);
-            currentLevelText[index].text = "Level " + vehicleProperties[index].currentUpgradeLevel.ToString();
+            for (int i = 0; i < vehicleProperties[index].currentUpgradeLevel - 1; i++)
+            {
+                if (!currentLevelStars[index].transform.GetChild(i).gameObject.activeSelf)
+                {
+                    currentLevelStars[index].transform.GetChild(i).gameObject.SetActive(true);
+                }
+            }
+            count++;
+        }
+    }
+
+    void ResetInteractable()
+    {
+        for(int i = 0; i < upgradeButtons.Length; i++)
+        {
+            Button button = upgradeButtons[i].gameObject.GetComponent<Button>();
+            button.interactable = true;
         }
     }
 
@@ -155,13 +182,14 @@ public class ProgressionScreen : MonoBehaviour
     //TODO: Lerp To Disappear
     public void OnClickUpgradeCharacter()
     {
-        Debug.Log("Current Level Character : " + vehicleProperties[0].currentUpgradeLevel);
         GameManager.Instance.DeductCash(GetCurrentCost(vehicleProperties[0].currentUpgradeLevel));
         vehicleProperties[0].currentUpgradeLevel++;
         upgradeButtons[0].SetActive(false);
         count--;
-        playerData.SetCharacter(vehicleProperties[0].currentUpgradeLevel);
-        SaveManager.Instance.SaveData(playerData);
+
+        //Save
+        PlayerDataController.Instance.playerData.characterLevel = vehicleProperties[0].currentUpgradeLevel;
+        PlayerDataController.Instance.Save();
         Upgradeable();
     }
     public void OnClickUpgradeCar()
@@ -170,8 +198,10 @@ public class ProgressionScreen : MonoBehaviour
         vehicleProperties[1].currentUpgradeLevel++;
         upgradeButtons[1].SetActive(false);
         count--;
-        playerData.SetCharacter(vehicleProperties[1].currentUpgradeLevel);
-        SaveManager.Instance.SaveData(playerData);
+
+        //Save
+        PlayerDataController.Instance.playerData.carLevel = vehicleProperties[1].currentUpgradeLevel;
+        PlayerDataController.Instance.Save();
         Upgradeable();
     }
     public void OnClickUpgradeTank()
@@ -180,8 +210,10 @@ public class ProgressionScreen : MonoBehaviour
         vehicleProperties[2].currentUpgradeLevel++;
         upgradeButtons[2].SetActive(false);
         count--;
-        playerData.SetCharacter(vehicleProperties[2].currentUpgradeLevel);
-        SaveManager.Instance.SaveData(playerData);
+
+        //Save
+        PlayerDataController.Instance.playerData.tankLevel = vehicleProperties[2].currentUpgradeLevel;
+        PlayerDataController.Instance.Save();
         Upgradeable();
     }
     public void OnClickUpgradeScooter()
@@ -190,8 +222,10 @@ public class ProgressionScreen : MonoBehaviour
         vehicleProperties[3].currentUpgradeLevel++;
         upgradeButtons[3].SetActive(false);
         count--;
-        playerData.SetCharacter(vehicleProperties[3].currentUpgradeLevel);
-        SaveManager.Instance.SaveData(playerData);
+
+        //Save
+        PlayerDataController.Instance.playerData.scooterLevel = vehicleProperties[3].currentUpgradeLevel;
+        PlayerDataController.Instance.Save();
         Upgradeable();
     }
     public void OnClickUpgradeBoat()
@@ -200,8 +234,10 @@ public class ProgressionScreen : MonoBehaviour
         vehicleProperties[4].currentUpgradeLevel++;
         upgradeButtons[4].SetActive(false);
         count--;
-        playerData.SetCharacter(vehicleProperties[4].currentUpgradeLevel);
-        SaveManager.Instance.SaveData(playerData);
+
+        //Save
+        PlayerDataController.Instance.playerData.boatLevel = vehicleProperties[4].currentUpgradeLevel;
+        PlayerDataController.Instance.Save();
         Upgradeable();
     }
     public void OnClickUpgradeAirplane()
@@ -210,8 +246,10 @@ public class ProgressionScreen : MonoBehaviour
         vehicleProperties[5].currentUpgradeLevel++;
         upgradeButtons[5].SetActive(false);
         count--;
-        playerData.SetCharacter(vehicleProperties[5].currentUpgradeLevel);
-        SaveManager.Instance.SaveData(playerData);
+
+        //Save
+        PlayerDataController.Instance.playerData.airplaneLevel = vehicleProperties[5].currentUpgradeLevel;
+        PlayerDataController.Instance.Save();
         Upgradeable();
     }
     public void OnClickNextButton()

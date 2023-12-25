@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public static event Action<GameState> OnGameStateChanged;
 
     //Global Varaibles
-    public int totalCash;
+    //public int totalCash;
 
     private void Awake()
     {
@@ -31,8 +31,10 @@ public class GameManager : MonoBehaviour
         {
             case GameState.Start: HandleStartState(); break;
             case GameState.Camera: HandleCameraState(); break;
+            case GameState.SetupGameData: HandleSetupGameDataState(); break;
             case GameState.Play: HandlePlayState(); break;
             case GameState.Transform: HandleTransformState(); break;
+            case GameState.Cash: HandleCashState(); break;
             case GameState.ProgressionScreen: HandleProgressionScreenState(); break;
             case GameState.NextVehicleProgress: HandleNextVehicleProgressState(); break;
             case GameState.Win: HandleWinState(); break;
@@ -42,13 +44,18 @@ public class GameManager : MonoBehaviour
         OnGameStateChanged?.Invoke(newState);
     }
 
-    
+
 
     private void HandleStartState()
     {
-        
+
     }
     private async void HandleCameraState()
+    {
+        await Task.Delay(1);
+        UpdateGameState(GameState.SetupGameData);
+    }
+    private async void HandleSetupGameDataState()
     {
         await Task.Delay(1);
         UpdateGameState(GameState.Play);
@@ -61,9 +68,17 @@ public class GameManager : MonoBehaviour
         await Task.Delay(1);
         UpdateGameState(GameState.Play);
     }
+    private void HandleCashState()
+    {
+
+    }
     private void HandleProgressionScreenState()
     {
-        
+
+    }
+    private void HandleNextVehicleProgressState()
+    {
+
     }
     private void HandleWinState()
     {
@@ -73,18 +88,17 @@ public class GameManager : MonoBehaviour
     {
 
     }
-    private void HandleNextVehicleProgressState()
-    {
 
-    }
     public enum GameState
     {
         Start,
+        SetupGameData,
         Camera,
         Play,
         Transform,
-        NextVehicleProgress,
+        Cash,
         ProgressionScreen,
+        NextVehicleProgress,
         Win,
         Lose
     }
@@ -93,13 +107,15 @@ public class GameManager : MonoBehaviour
     #region Game Data Logic
     public void UpdateCash(int cash)
     {
-        Instance.totalCash += cash;
+        // Instance.totalCash += cash;
     }
     public void DeductCash(int cash)
     {
-        if(cash <= totalCash)
+        if (cash <= PlayerDataController.Instance.playerData.PlayerGold)
         {
-            totalCash -= cash;
+            // totalCash -= cash;
+            PlayerDataController.Instance.playerData.PlayerGold -= cash;
+
         }
         else
         {

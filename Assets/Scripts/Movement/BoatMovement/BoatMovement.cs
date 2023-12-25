@@ -15,9 +15,8 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
     //Flags
     [SerializeField] public bool forceEffect = false;
     [SerializeField] private float waitTimerForForceEffect;
-
-    //Variables 
     private bool runOnce = false;
+
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -31,12 +30,10 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            runOnce = true;
+            runOnce = false;
         }
-
         if (state == GameManager.GameState.Play)
-        {
-            speed = vehicleProperties.speed;
+        {           
             IncrementSpeed();
         }
     }
@@ -59,9 +56,10 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
     }
     void IncrementSpeed()
     {
-        if (vehicleProperties.currentUpgradeLevel > 1 && runOnce != true)
-        {
-            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel;
+        speed = vehicleProperties.speed;
+        if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
+        {         
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel - 1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;
         }

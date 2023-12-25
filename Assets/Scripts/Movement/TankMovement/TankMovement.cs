@@ -25,8 +25,6 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
     //Flags
     [SerializeField] public bool forceEffect = false;
     [SerializeField] private float waitTimerForForceEffect;
-
-    //Variables 
     private bool runOnce = false;
 
     private void Awake()
@@ -42,12 +40,16 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            runOnce = true;
+            runOnce = false;
         }
         if (state == GameManager.GameState.Play)
         {
-            speed = vehicleProperties.speed;
             IncrementSpeed();
+        }
+        //Reset any flags on transform state 
+        if (state == GameManager.GameState.Transform)
+        {
+            forceEffect = false;
         }
     }
 
@@ -88,9 +90,10 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
     //5 % Increment with each level
     void IncrementSpeed()
     {
-        if (vehicleProperties.currentUpgradeLevel > 1 && runOnce != true)
-        {
-            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel;
+        speed = vehicleProperties.speed;
+        if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
+        {     
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel -1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;
         }
