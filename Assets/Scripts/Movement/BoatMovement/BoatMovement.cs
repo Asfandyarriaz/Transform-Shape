@@ -56,9 +56,10 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
     }
     void IncrementSpeed()
     {
-        speed = vehicleProperties.speed;
+        
         if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
-        {         
+        {
+            speed = vehicleProperties.speed;
             incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel - 1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;

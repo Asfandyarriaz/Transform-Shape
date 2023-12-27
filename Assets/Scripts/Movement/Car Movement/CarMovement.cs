@@ -16,6 +16,9 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
 
     //Flags
     private bool runOnce = false;
+
+    //Variables
+    CarObstacleBehaviour carObstacleBehaviourScript;
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -23,6 +26,12 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
     private void OnDestroy()
     {
         GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
+    }
+
+    private void OnEnable()
+    {
+        if(carObstacleBehaviourScript != null)
+        carObstacleBehaviourScript.enabled = true;
     }
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
@@ -33,9 +42,13 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
         }
 
         if (state == GameManager.GameState.Play)
-        {
-            
+        {        
             IncrementSpeed();
+        }
+
+        if(state == GameManager.GameState.Cash)
+        {
+            carObstacleBehaviourScript.enabled = false;
         }
     }
 
@@ -43,6 +56,7 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
     {
         rb = GetComponent<Rigidbody>();
         allowMove = true;
+        carObstacleBehaviourScript = GetComponent<CarObstacleBehaviour>();
     }
 
     public void Movement()
@@ -60,9 +74,10 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
     //5 % Increment with each level
     void IncrementSpeed()
     {
-        speed = vehicleProperties.speed;
+        
         if (vehicleProperties.currentUpgradeLevel > 1 && runOnce != true)
-        {          
+        {
+            speed = vehicleProperties.speed;
             incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel -1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;

@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
         switch (State)
         {
             case GameState.Start: HandleStartState(); break;
+            case GameState.Settings: HandleSettingsState(); break;
             case GameState.Camera: HandleCameraState(); break;
             case GameState.SetupGameData: HandleSetupGameDataState(); break;
             case GameState.Play: HandlePlayState(); break;
@@ -47,6 +48,10 @@ public class GameManager : MonoBehaviour
 
 
     private void HandleStartState()
+    {
+
+    }
+    private void HandleSettingsState()
     {
 
     }
@@ -92,6 +97,7 @@ public class GameManager : MonoBehaviour
     public enum GameState
     {
         Start,
+        Settings,
         SetupGameData,
         Camera,
         Play,

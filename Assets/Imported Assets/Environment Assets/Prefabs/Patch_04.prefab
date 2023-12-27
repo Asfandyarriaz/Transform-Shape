@@ -139,7 +139,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 485777451}
-  m_Mesh: {fileID: 7417950403352657878, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
+  m_Mesh: {fileID: -86359022835013979, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
 --- !u!23 &485777455
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -370,7 +370,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 706536304}
-  m_Mesh: {fileID: 7417950403352657878, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
+  m_Mesh: {fileID: -86359022835013979, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
 --- !u!23 &706536307
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -986,7 +986,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 430584112633980195}
-  m_Mesh: {fileID: 7397175730739878291, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
+  m_Mesh: {fileID: -1206580015024685019, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
 --- !u!23 &2231887143277823222
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1058,6 +1058,7 @@ GameObject:
   - component: {fileID: 5797529202646658903}
   - component: {fileID: 2294677117932739114}
   - component: {fileID: 1717509914}
+  - component: {fileID: 1667111474660850476}
   m_Layer: 4
   m_Name: water_patch
   m_TagString: Water
@@ -1087,7 +1088,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8256048947899825476}
-  m_Mesh: {fileID: 7417950403352657878, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
+  m_Mesh: {fileID: -86359022835013979, guid: ee59b846a1f73a94880275f74e40538d, type: 3}
 --- !u!23 &5797529202646658903
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1160,6 +1161,22 @@ MonoBehaviour:
   _renderer: {fileID: 5797529202646658903}
   textureParameters:
   - _BaseMap
+--- !u!114 &1667111474660850476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8256048947899825476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf1d9bb19ae2aa47b6270d1f91653c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: {x: 0, y: 0}
+  _renderer: {fileID: 0}
+  textureParameters:
+  - _MainTex
 --- !u!1001 &189457571
 PrefabInstance:
   m_ObjectHideFlags: 0

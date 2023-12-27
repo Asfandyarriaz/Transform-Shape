@@ -10,7 +10,16 @@ Epic Transform Shape game
 8. Different levels     - Done
 9. Stairs                -Done
 10. AI                 -Done (Still Needs Fixing Car Change)
-11. Cinemachine       -Done (Win Condition Camera Left)
+11. Cinemachine       -Done 
 12. Save System       -Done
 13. Firebase          -Not Completed
 14. Ads                -Not Completed
+
+
+15. Vehicle Unlock Progress -Not Completed
+16. Race Progress           -Not Completed 
+17. Tap To Play UI          -Needs Reword 
+18. Add Setting Icon in TapToPlay Screen  -Not Completed
+19. Increase Game Speed 
+
+20.Sounds -Done

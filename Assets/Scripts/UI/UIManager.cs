@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text cashText;
     [SerializeField] GameObject cashImage;
     [SerializeField] GameObject raceProgressBar;
+    [SerializeField] GameObject SettingsPanel;
 
     [Header("Default Cash Reward")]
     [SerializeField] int defaultCashReward = 200;
@@ -59,6 +60,9 @@ public class UIManager : MonoBehaviour
 
         //if (state == GameState.Play || state == GameState.Transform)
         raceProgressBar.SetActive(state == GameState.Play || state == GameState.Transform);
+
+        //if (state == GameState.Settings)
+        SettingsPanel.SetActive(state == GameState.Settings);
     }
     private void Update()
     {
@@ -75,6 +79,19 @@ public class UIManager : MonoBehaviour
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
     }
+
+    public void OnClickSetting()
+    {
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Settings);
+    }
+    public void OnClickCancelButton()
+    {
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Start);
+    }
+    public void OnClickTapToPlay()
+    {
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Camera);
+    }
     public void OnClickCashPanelContinue()
     {
         PlayerDataController.Instance.playerData.PlayerGold += defaultCashReward;
@@ -82,7 +99,6 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.UpdateGameState(GameState.ProgressionScreen);
         
     }
-
     void DisplayCash()
     {
         cashText.text =  PlayerDataController.Instance.playerData.PlayerGold.ToString();

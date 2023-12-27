@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.ProBuilder.MeshOperations;
 
 public class MovementController : MonoBehaviour
 {
@@ -13,9 +9,10 @@ public class MovementController : MonoBehaviour
     int vehicleIndex;
     IInterfaceMovement movementBehaviorSriptAttachedObject;
 
+    [Header("Flags")]
     //Flags
-    private bool hasCheckOnStateChange;
-    private bool updateAllowed;
+    [SerializeField] private bool hasCheckOnStateChange;
+    [SerializeField] private bool updateAllowed;
 
     #region State Handling
     /// <summary>
@@ -35,6 +32,13 @@ public class MovementController : MonoBehaviour
         if (state == GameManager.GameState.Play)
         {
             updateAllowed = true;
+            
+        }
+        if (state == GameManager.GameState.Play)
+        {
+            updateAllowed = true;
+            ResetFlags();
+
         }
         else
         {

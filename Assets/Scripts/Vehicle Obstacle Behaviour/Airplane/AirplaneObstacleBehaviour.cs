@@ -13,11 +13,11 @@ public class AirplaneObstacleBehaviour : MonoBehaviour
     //Flags
     [SerializeField] private bool runOnce = false;
     private void OnCollisionEnter(Collision collision)
-    {/*
-        if(collision.gameObject.CompareTag("Fly"))
+    {
+        if (collision.gameObject.CompareTag("Win"))
         {
-            bezierFollowScipt.startBezierCurve = true;
-        }*/
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
     }
 
     private void Update()

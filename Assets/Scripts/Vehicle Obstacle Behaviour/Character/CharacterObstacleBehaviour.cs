@@ -32,7 +32,7 @@ public class CharacterObstacleBehaviour : MonoBehaviour
         //Win Check
         if (hit.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Win);
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
         }
     }
     private void Update()

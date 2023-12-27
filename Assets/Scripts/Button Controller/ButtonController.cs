@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 /// <summary>
@@ -20,8 +19,11 @@ public class ButtonController : MonoBehaviour
     [SerializeField] Sprite currentSelectedImage;
     [SerializeField] Sprite deselectedImage;
 
+    [Header("Variables")]
     //Variables 
     Quaternion resetRotation = Quaternion.Euler(0, 0, 0);
+    [SerializeField] private float airplaneYOffset = 0.1f;
+    [SerializeField] private float yOffset = 0.1f;
 
     private void Awake()
     {
@@ -86,6 +88,7 @@ public class ButtonController : MonoBehaviour
     public void OnClickTransformPlane()
     {
         ChangeToObject("Airplane", DisableCurrentActive());
+        ChangeToObject("Airplane", DisableCurrentActive(), "Ref Override");
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
@@ -127,14 +130,32 @@ public class ButtonController : MonoBehaviour
             if (movementControllerScript.tranformObjectsArr[i].name == transformToName)
             {
                 //movementControllerScript.tranformObjectsArr[i].transform.position = currentPos.position;
-                Vector3 newPos = new Vector3(movementControllerScript.startingPosition.position.x, currentPos.position.y, currentPos.position.z);
+                Vector3 newPos = new Vector3(movementControllerScript.startingPosition.position.x, currentPos.position.y + yOffset, currentPos.position.z);
+                movementControllerScript.tranformObjectsArr[i].transform.position = newPos;
+                movementControllerScript.tranformObjectsArr[i].transform.rotation = resetRotation;
+                movementControllerScript.tranformObjectsArr[i].SetActive(true);
+
+                //Set Particle as child and play
+                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform, particleManagerScript.transformParticlePlayer));
+                break;
+            }
+        }
+    }
+    void ChangeToObject(string transformToName, Transform currentPos, string plane)
+    {
+        for (int i = 0; i < movementControllerScript.tranformObjectsArr.Length; i++)
+        {
+            if (movementControllerScript.tranformObjectsArr[i].name == transformToName)
+            {
+                //movementControllerScript.tranformObjectsArr[i].transform.position = currentPos.position;
+                Vector3 newPos = new Vector3(movementControllerScript.startingPosition.position.x, currentPos.position.y + airplaneYOffset, currentPos.position.z);
                 movementControllerScript.tranformObjectsArr[i].transform.position = newPos;
                 movementControllerScript.tranformObjectsArr[i].transform.rotation = resetRotation;
                 Debug.Log("Change To Object Method");
                 movementControllerScript.tranformObjectsArr[i].SetActive(true);
 
                 //Set Particle as child and play
-                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform, particleManagerScript.transformParticleAI));
+                StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform, particleManagerScript.transformParticlePlayer));
                 break;
             }
         }

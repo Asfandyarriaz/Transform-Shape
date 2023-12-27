@@ -55,6 +55,18 @@ public class LevelManager : MonoBehaviour
         SetButtons(index);
     }
 
+    public GameObject GetCurrentActiveLevels()
+    {
+        for (int i = 0; i < levels.Length; i++)
+        {
+            if(levels[i].activeSelf)
+            {
+                return levels[i];
+            }
+        }
+        return null;
+    }
+
 
     //Check buttons based on name and activate them
     void SetButtons(int currentLevel)

@@ -35,7 +35,7 @@ public class CameraController : MonoBehaviour
     }
     private void Update()
     {
-        if (GameManager.Instance.State == GameManager.GameState.Start)
+        /*if (GameManager.Instance.State == GameManager.GameState.Start)
         {
             if (Input.touchCount > 0)
             {
@@ -44,7 +44,7 @@ public class CameraController : MonoBehaviour
                     GameManager.Instance.UpdateGameState(GameManager.GameState.Camera);
                 }
             }
-        }
+        }*/
     }
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)

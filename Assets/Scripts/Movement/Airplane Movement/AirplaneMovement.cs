@@ -68,9 +68,10 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
     //5 % Increment with each level
     void IncrementSpeed()
     {
-        forwardSpeed = vehicleProperties.speed;
+        
         if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
-        {           
+        {
+            forwardSpeed = vehicleProperties.speed;
             incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel - 1;
             forwardSpeed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;
@@ -97,20 +98,24 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
             // Check for a wall in front
             if (Physics.Raycast(transform.position, transform.forward, out RaycastHit wallHit, wallDetectionDistance))
             {
-                moveForward = false;
-                // If a wall is detected, limit the forward movement until the object is above the wall
-                float wallHeight = wallHit.point.y + hoverHeight;
-
-                // Only move forward if the object is above the height of the wall
-                if (transform.position.y >= wallHeight)
+                if (!wallHit.collider.CompareTag("Win"))
                 {
-                    transform.Translate(Vector3.forward * forwardSpeed * Time.deltaTime);
+                    moveForward = false;
+
+                    // If a wall is detected, limit the forward movement until the object is above the wall
+                    float wallHeight = wallHit.point.y + hoverHeight;
+
+                    // Only move forward if the object is above the height of the wall
+                    if (transform.position.y >= wallHeight)
+                    {
+                        transform.Translate(Vector3.forward * forwardSpeed * Time.deltaTime);
+                    }
+
+                    // Gradually ascend the object to the height of the wall
+                    targetHeight = Mathf.Max(targetHeight, wallHeight);
+
+                    StartCoroutine(KeepMovingUp());
                 }
-
-                // Gradually ascend the object to the height of the wall
-                targetHeight = Mathf.Max(targetHeight, wallHeight);
-
-                StartCoroutine(KeepMovingUp());
             }
 
             // Gradually ascend or descend the object to the target height

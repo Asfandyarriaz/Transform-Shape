@@ -37,7 +37,7 @@ public class CarObstacleBehaviour : MonoBehaviour
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Win);
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
         }
     }
 
@@ -73,6 +73,10 @@ public class CarObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(rayCastOrigin, Vector3.forward * rayCastLengthFront, Color.red);
         if (Physics.Raycast(rayCastOrigin, Vector3.forward, out hit, rayCastLengthFront, groundLayer))
         {
+            if(hit.collider.CompareTag("Win"))
+            {
+                GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+            }
             return true;
         }
         return false;

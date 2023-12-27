@@ -18,6 +18,13 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     [SerializeField] private float waitTimerForForceEffect;
     private bool runOnce = false;
 
+    //Variables
+    BikeObstacleBehaviour bikeObstacleBehaviour;
+
+    private void OnEnable()
+    {
+        bikeObstacleBehaviour.enabled = true;
+    }
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -37,11 +44,16 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
         {         
             IncrementSpeed();
         }
+        if (state == GameManager.GameState.Cash)
+        {
+            bikeObstacleBehaviour.enabled = false;
+        }
     }
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         downSpeed = vehicleProperties.speed;
+        bikeObstacleBehaviour = GetComponent<BikeObstacleBehaviour>();
     }
 
     public void Movement()
@@ -57,9 +69,10 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     }
     void IncrementSpeed()
     {
-        speed = vehicleProperties.speed;
+        
         if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
-        {          
+        {
+            speed = vehicleProperties.speed;
             incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel - 1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;

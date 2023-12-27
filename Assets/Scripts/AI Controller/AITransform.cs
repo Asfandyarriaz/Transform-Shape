@@ -86,7 +86,6 @@ public class AITransform : MonoBehaviour
                 Vector3 newPos = new Vector3(aiControllerScript.aiStartingPosition.position.x, currentPos.position.y, currentPos.position.z);
                 aiControllerScript.tranformObjectsArr[i].transform.position = newPos;
                 aiControllerScript.tranformObjectsArr[i].transform.rotation = resetRotation;
-                Debug.Log("Change To Object Method");
                 aiControllerScript.tranformObjectsArr[i].SetActive(true);
                 detectionObject.transform.SetParent(aiControllerScript.tranformObjectsArr[i].transform);
 
@@ -111,7 +110,6 @@ public class AITransform : MonoBehaviour
         Debug.DrawRay(rayCastOrigin, Vector3.forward * frontLength, Color.green);
         if (Physics.Raycast(rayCastOrigin, Vector3.forward, out hit, frontLength))
         {
-            Debug.Log("Hit Perform Action");
             //allowRaycastCheck = false;
             PerfromActionOnRaycastHit(hit);
         }

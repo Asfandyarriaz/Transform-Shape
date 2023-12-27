@@ -124,7 +124,7 @@ public class PlayerDataController : MonoBehaviour {
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 FileStream file = File.Open(Application.persistentDataPath + fileName, FileMode.Open);
-                Debug.Log("Path " + Application.persistentDataPath + fileName);
+                //Debug.Log("Path " + Application.persistentDataPath + fileName);
                 playerData = (PlayerDataSerializeable)bf.Deserialize(file);
                 file.Close();
                 HandleIncreamentData();
