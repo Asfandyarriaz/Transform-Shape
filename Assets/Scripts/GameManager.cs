@@ -85,9 +85,10 @@ public class GameManager : MonoBehaviour
     {
 
     }
-    private void HandleWinState()
+    private async void HandleWinState()
     {
-
+        await Task.Delay(1);
+        UpdateGameState(GameState.Start);
     }
     private void HandleLoseState()
     {

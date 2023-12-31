@@ -6,34 +6,29 @@ public class BikeObstacleBehaviour : MonoBehaviour
 {
     [SerializeField] BikeMovement bikeMovementScript;
 
-    [Header("Raycast Setting Ground")]
-    [SerializeField] float rayCastLength;
-    [SerializeField] LayerMask groundLayer;
-    [SerializeField] Vector3 rayCastOffset;
-
     [Header("Raycast Setting Front")]
     [SerializeField] float rayCastLengthFront;
     [SerializeField] Vector3 rayCastOffsetFront;
+
+    [Header("Raycast Setting Down")]
+    //[SerializeField] float rayCastLengthDown;
+    [SerializeField] Vector3 rayCastOffsetDown;
+
+    [Header("Layer")]
+    [SerializeField] LayerMask groundLayer;
+
+    //Varaibles
+    Rigidbody rb;
+
+    //Flags
+    private bool slowCheck;
+    private bool startCoroutine = true;
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
-            /*collision.gameObject.SetActive(false);
-            //Play Audio
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.objectBreakSound);*/
-        }
-        if (collision.gameObject.CompareTag("Ramp"))
-        {
-            bikeMovementScript.allowMove = false;
-        }
-        if (collision.gameObject.CompareTag("Water"))
-        {
-            bikeMovementScript.allowMove = false;
-        }
-        else
-        {
-            bikeMovementScript.allowMove = true;
-        }
+            //Stop Car Logic
+        }       
 
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
@@ -41,61 +36,86 @@ public class BikeObstacleBehaviour : MonoBehaviour
             GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
         }
     }
-
-
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
     private void Update()
     {
-        if (IsGrounded() && !CheckRaycastFront() || CheckForBikeTrail())
-        {
-            bikeMovementScript.allowMove = true;
-        }
-        else
+        if (RaycastFront() || RaycastDown())
         {
             bikeMovementScript.allowMove = false;
         }
-        CheckForBikeTrail();
 
-    }
-    bool IsGrounded()
-    {
-        RaycastHit hit;
-        Vector3 rayCastOrigin = (transform.position + rayCastOffset);
-
-        Debug.DrawRay(rayCastOrigin, Vector3.down * rayCastLength, Color.green);
-        if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, rayCastLength, groundLayer))
+        if (!RaycastFront() && !RaycastDown())
         {
-            return true;
+            bikeMovementScript.allowMove = true;
         }
-        return false;
-    }
-    bool CheckRaycastFront()
-    {
-        RaycastHit hit;
-        Vector3 rayCastOrigin = (transform.position + rayCastOffsetFront);
 
-        Debug.DrawRay(rayCastOrigin, Vector3.forward * rayCastLengthFront, Color.red);
-        if (Physics.Raycast(rayCastOrigin, Vector3.forward, out hit, rayCastLengthFront, groundLayer))
-        {
-            return true;
-        }
-        return false;
     }
 
-    bool CheckForBikeTrail()
+    bool RaycastFront()
     {
         RaycastHit hit;
-        Vector3 rayCastOrigin = (transform.position + rayCastOffset);
+        Vector3 origin = transform.position + rayCastOffsetFront;
 
-        Debug.DrawRay(rayCastOrigin, Vector3.down * rayCastLength, Color.blue);
-        if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, rayCastLength))
+        Debug.DrawRay(origin, Vector3.forward * rayCastLengthFront, Color.red);
+        if (Physics.Raycast(origin, Vector3.forward, out hit, rayCastLengthFront))
         {
-            Debug.Log(hit.collider.gameObject.name);
-            if (hit.collider.CompareTag("Biketrail"))
+            if (hit.collider.CompareTag("Stairs"))
             {
+                if (startCoroutine)
+                    StartCoroutine(SlowCar());
                 return true;
             }
         }
         return false;
     }
 
+    bool RaycastDown()
+    {
+        RaycastHit hit;
+        Vector3 origin = transform.position + rayCastOffsetDown;
+
+        Debug.DrawRay(origin, Vector3.down * Mathf.Infinity, Color.green);
+        if (Physics.Raycast(origin, Vector3.down, out hit, Mathf.Infinity))
+        {
+            if (hit.collider.CompareTag("Stairs"))
+            {
+                return true;
+            }
+            if (hit.collider.CompareTag("Water"))
+            {
+                if (slowCheck)
+                {
+                    slowCheck = false;
+                    StartCoroutine(bikeMovementScript.SlowSpeedInWater());
+                }
+            }
+            else
+            {
+                if (slowCheck == false)
+                {
+                    slowCheck = true;
+                    StartCoroutine(bikeMovementScript.ResetSpeed());
+                }
+            }
+        }
+        return false;
+    }
+
+    IEnumerator SlowCar()
+    {
+        startCoroutine = false;
+        float time = 0;
+        float duration = 1f;
+        while (time < duration)
+        {
+            rb.velocity = new Vector3(0, 0, Mathf.Lerp(rb.velocity.z, 0, time / duration));
+            time += Time.deltaTime;
+            yield return null;
+        }
+        time = 0;
+        startCoroutine = true;
+    }
 }

@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour
     [Header("Tap To Play Canvas")]
     [SerializeField] GameObject TapToPlayCanvas;
     [SerializeField] GameObject gameOverCanvas;
-    [SerializeField] GameObject victoryCanvas;
+    [SerializeField] GameObject VehicleUnlockProgressScreen;
     [SerializeField] GameObject vehicleSelectorCanvas;
     [SerializeField] GameObject progressionScreenCanvas;
     [SerializeField] GameObject cashPanel;
@@ -43,7 +43,7 @@ public class UIManager : MonoBehaviour
         gameOverCanvas.SetActive(state == GameState.Lose);
 
         //if (state == GameState.Win)
-        victoryCanvas.SetActive(state == GameState.Win);
+        VehicleUnlockProgressScreen.SetActive(state == GameState.NextVehicleProgress);
 
         //if (state == GameState.Progression Screen)
         progressionScreenCanvas.SetActive(state == GameState.ProgressionScreen);
@@ -71,6 +71,12 @@ public class UIManager : MonoBehaviour
     public void OnClickRetry()
     {
         GameManager.Instance.UpdateGameState(GameState.Start);
+        //Play Audio
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+    }
+    public void OnClickNextlevel()
+    {
+        GameManager.Instance.UpdateGameState(GameState.Win);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
     }

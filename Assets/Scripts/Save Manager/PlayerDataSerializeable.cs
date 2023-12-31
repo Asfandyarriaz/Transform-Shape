@@ -13,6 +13,14 @@ public class PlayerDataSerializeable  {
     public int scooterLevel=1;
     public int currentLevel=0;
 
+    //Vehicle Unlock Progression 
+    public float boatUnlockProgress = 0;
+    public float tankUnlockProgress = 0;
+    public float planeUnlockProgress = 0;
+    public float scooterUnlockProgress = 0;
+    public float airplaneUnlockProgress = 0;
+    public float gliderUnlockProgress = 0;
+
     public int PlayerCash = 100;
 	public int Rank =1;
 	public int xpoints =0;

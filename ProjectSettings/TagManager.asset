@@ -11,6 +11,7 @@ TagManager:
   - Fly
   - Ramp
   - Biketrail
+  - Stairs
   layers:
   - Default
   - TransparentFX

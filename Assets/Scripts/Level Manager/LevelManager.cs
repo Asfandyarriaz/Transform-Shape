@@ -66,6 +66,17 @@ public class LevelManager : MonoBehaviour
         }
         return null;
     }
+    public int Int_GetCurrentActiveLevel()
+    {
+        for (int i = 0; i < levels.Length; i++)
+        {
+            if (levels[i].activeSelf)
+            {
+                return i;
+            }
+        }
+        return 0;
+    }
 
 
     //Check buttons based on name and activate them

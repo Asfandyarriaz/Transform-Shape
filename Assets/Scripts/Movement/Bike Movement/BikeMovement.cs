@@ -4,27 +4,40 @@ using UnityEngine;
 
 public class BikeMovement : MonoBehaviour, IInterfaceMovement
 {
-    [SerializeField] public VehicleProperties vehicleProperties;
-    [SerializeField] public bool allowMove;
-    private float downSpeed;
-    Rigidbody rb;
     [Header("Speed")]
-    [SerializeField] private float speed;
+    public float targetVelocity = 12f;  // Adjust the desired velocity
+    public float forceMultiplier = 1f;  // Adjust the force multiplier
 
-    [Header("Speed Increment")]
-    [SerializeField] private float incrementSpeedPercentage;
+    [Header("Slope Rotation")]
+    public float rotationSpeed = 45f;  // Adjust the rotation speed as needed
+    public float maxSlopeAngle = 45f;  // Adjust the maximum slope angle to consider
+    public LayerMask ground;
+    public Vector3 offset;
+    public float rayCastLength;
+
+
+    [Header("Grounded")]
+    public float rayCastGroundLength;
+    Rigidbody rb;
+
+    [Header("Air")]
+    public float flySpeed;
+
     //Flags
-    [SerializeField] public bool forceEffect = false;
-    [SerializeField] private float waitTimerForForceEffect;
-    private bool runOnce = false;
+    [Header("Flags")]
+    public bool allowMove;
+
+    [Header("Other Settings")]
+    [SerializeField] VehicleProperties vehicleProperties;
 
     //Variables
-    BikeObstacleBehaviour bikeObstacleBehaviour;
+    private float tempForceMultiplier;
+    private float tempTargertVelocity;
 
-    private void OnEnable()
-    {
-        bikeObstacleBehaviour.enabled = true;
-    }
+    private int slowSpeed = 4;
+    private float slowDuration = 0.5f;
+    private float resetDuration = 1.5f;
+
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -38,44 +51,100 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            runOnce = false;
+            //runOnce = false;
         }
         if (state == GameManager.GameState.Play)
-        {         
-            IncrementSpeed();
-        }
-        if (state == GameManager.GameState.Cash)
         {
-            bikeObstacleBehaviour.enabled = false;
+            //targetVelocity = vehicleProperties.speed;
+            //IncrementSpeed();
         }
-    }
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-        downSpeed = vehicleProperties.speed;
-        bikeObstacleBehaviour = GetComponent<BikeObstacleBehaviour>();
     }
 
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        tempForceMultiplier = forceMultiplier;
+        tempTargertVelocity = targetVelocity;
+    }
     public void Movement()
     {
-            if (allowMove)
-            {
-                rb.velocity = Vector3.forward * vehicleProperties.speed;
-            }
-            else
-            {
-                rb.velocity = new Vector3(0, -downSpeed, 0);
-            }
-    }
-    void IncrementSpeed()
-    {
-        
-        if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
+        if (allowMove)
         {
-            speed = vehicleProperties.speed;
-            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel - 1;
-            speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
-            runOnce = true;
+            MoveForward();
+            RotateToSlope();
+        }
+    }
+    void MoveForward()
+    {
+        if (IsGrounded())
+        {
+            forceMultiplier = tempForceMultiplier;
+            float acceleration = (targetVelocity - rb.velocity.magnitude) / Time.fixedDeltaTime;
+            // Calculate force needed
+            float force = rb.mass * acceleration;
+
+            // Add force in the forward direction
+            rb.AddForce(transform.forward * forceMultiplier * force);
+        }
+        else
+        {
+            forceMultiplier = 0;
+            rb.AddForce(Vector3.forward * flySpeed);
+        }
+    }
+
+    void RotateToSlope()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + offset, Vector3.down, out hit, rayCastLength, ground))
+        {
+            Debug.DrawRay(transform.position + offset, Vector3.down * rayCastLength, Color.yellow);
+            // Check if the surface hit is a slope (based on the angle)
+            if (Vector3.Angle(hit.normal, Vector3.up) > 0 && Vector3.Angle(hit.normal, Vector3.up) < maxSlopeAngle)
+            {
+                // Calculate the rotation based on the slope normal
+                Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
+
+                // Rotate the object smoothly
+                transform.rotation = Quaternion.Slerp(transform.rotation, slopeRotation, rotationSpeed * Time.deltaTime);
+            }
+        }
+    }
+
+    bool IsGrounded()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, rayCastGroundLength))
+        {
+            Debug.DrawRay(transform.position, Vector3.down * rayCastGroundLength, Color.red);
+            return true;
+        }
+        return false;
+    }
+
+    //Reduce speed by 4 times
+    public IEnumerator SlowSpeedInWater()
+    {
+        float time = 0;
+        float velocity = 0;
+        while (time < slowDuration)
+        {
+            velocity = Mathf.Lerp(targetVelocity, slowSpeed, time / slowDuration);
+            targetVelocity = velocity;
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+    }
+    public IEnumerator ResetSpeed()
+    {
+        float time = 0;
+        float velocity = 0;
+        while (time < resetDuration)
+        {
+            velocity = Mathf.Lerp(targetVelocity, tempTargertVelocity, time / resetDuration);
+            targetVelocity = velocity;
+            time += Time.deltaTime;
+            yield return null;
         }
     }
 }

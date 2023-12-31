@@ -6,20 +6,18 @@ using static GameManager;
 public class RotateObjects : MonoBehaviour
 {
     [SerializeField] GameObject[] objectToRotate;
-    private Rigidbody rb;
+
     //public float rotationSpeedMultiplier = 10f;
     [SerializeField] float rotationSpeed;
 
     void Start()
     {
-        // Get the Rigidbody component attached to the GameObject
-        rb = GetComponent<Rigidbody>();
+
     }
 
     private void Update()
     {
-        if (rb != null)
-        {
+
             // Calculate rotation frequency based on velocity magnitude
             //float rotationSpeed = rb.velocity.magnitude * rotationSpeedMultiplier;
 
@@ -28,10 +26,6 @@ public class RotateObjects : MonoBehaviour
                 // Rotate the tire around its local forward axis
                 objectToRotate[i].transform.Rotate(Vector3.right * rotationSpeed * Time.deltaTime);
             }
-        }
-        else
-        {
-            Debug.LogError("Rigidbody component not found!");
-        }
+
     }
 }

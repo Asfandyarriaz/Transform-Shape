@@ -48,6 +48,8 @@ public class ButtonController : MonoBehaviour
     {
         movementControllerScript = GetComponent<MovementController>();
     }
+
+    //TODO: Fix Hardcoded Values
     public void OnClickTransformCharacterWalk()
     {
         ChangeToObject("Character Walk", DisableCurrentActive()); //Set name same as object under TransformList object in hierarchy
@@ -76,6 +78,15 @@ public class ButtonController : MonoBehaviour
 
         SetBackgroundImageAndDeselectAllOthers(2);
     }
+    public void OnClickTransformScooter()
+    {
+        ChangeToObject("Scooter", DisableCurrentActive());
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        //Play Audio
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
+
+        SetBackgroundImageAndDeselectAllOthers(3);
+    }
     public void OnClickTransformBoat()
     {
         ChangeToObject("Boat", DisableCurrentActive());
@@ -98,15 +109,15 @@ public class ButtonController : MonoBehaviour
         //Manually set the y position higher to avoid plane clipping into ground
         Vector3 position = movementControllerScript.tranformObjectsArr[5].transform.position;
         position = new Vector3(position.x, position.y + 10f, position.z);
-    }
-    public void OnClickTransformScooter()
+    } 
+    public void OnClickTransformGlider()
     {
-        ChangeToObject("Scooter", DisableCurrentActive());
+        ChangeToObject("Glider", DisableCurrentActive());
         GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
-        SetBackgroundImageAndDeselectAllOthers(3);
+        SetBackgroundImageAndDeselectAllOthers(6);
     }
 
     Transform DisableCurrentActive()

@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 866bf74fb96a95e4abc7c4c5071abf64, type: 3}
   m_Name: Level01
   m_EditorClassIdentifier: 
-  numberOfShapes: 4
+  numberOfShapes: 6
   shapeNames:
   - Character
   - Car
   - Tank
   - Airplane
+  - Glider
+  - Scooter

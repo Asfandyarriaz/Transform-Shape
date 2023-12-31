@@ -56,14 +56,14 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
     public void Movement()
     {
         StayAboveGround();
-        if (!bezierFollowScript.bezierRunning)
-        {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity))
-            {
-                Vector3 newPosition = hit.point + new Vector3(0, yOffset, 0);
-                //transform.position = newPosition;
-            }
-        }
+        //if (!bezierFollowScript.bezierRunning)
+        //{
+        //    if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity))
+        //    {
+        //        Vector3 newPosition = hit.point + new Vector3(0, yOffset, 0);
+        //        transform.position = newPosition;
+        //    }
+        //}
     }
     //5 % Increment with each level
     void IncrementSpeed()

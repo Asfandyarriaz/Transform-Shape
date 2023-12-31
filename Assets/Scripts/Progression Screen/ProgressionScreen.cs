@@ -51,6 +51,7 @@ public class ProgressionScreen : MonoBehaviour
             Upgradeable();
         }
     }
+    
 
     private void Start()
     {
@@ -254,6 +255,6 @@ public class ProgressionScreen : MonoBehaviour
     }
     public void OnClickNextButton()
     {
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Win);
+        GameManager.Instance.UpdateGameState(GameManager.GameState.NextVehicleProgress);
     }
 }

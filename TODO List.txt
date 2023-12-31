@@ -23,3 +23,10 @@ Epic Transform Shape game
 19. Increase Game Speed 
 
 20.Sounds -Done
+
+
+
+Todays Target : 
+
+-Running and Climbing animation on character
+-Glider Feature on character or add as a new vehicle

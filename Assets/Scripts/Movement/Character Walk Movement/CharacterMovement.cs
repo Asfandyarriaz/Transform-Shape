@@ -12,10 +12,14 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
 
     [Header("Speed")]
     [SerializeField] private float speed;
+    [SerializeField] private float climbingSpeed;
 
     [Header("Speed Increment")]
     [SerializeField] private float incrementSpeedPercentage = 5f;
 
+
+    //Animator
+    private Animator animator;
     //Flags
     private bool runOnce = false;
     private void Awake()
@@ -43,6 +47,8 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
+        speed = vehicleProperties.speed;
     }
 
     public void Movement()
@@ -51,11 +57,11 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
         {
             if (isClimbable)
             {
-                characterController.Move(Vector3.up * vehicleProperties.speed * Time.deltaTime);
+                characterController.Move(Vector3.up * (speed - climbingSpeed) * Time.deltaTime);
             }
             else
             {
-                characterController.Move(Vector3.forward * vehicleProperties.speed * Time.deltaTime);
+                characterController.Move(Vector3.forward * speed * Time.deltaTime);
             }
         }
         else
@@ -63,6 +69,8 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
             characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime);
         }
         if(!isOnGround && !isClimbable) { characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime); }
+
+        AnimationController();
     }
 
     //5 % Increment with each level
@@ -75,6 +83,20 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
             incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel -1;
             speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;
+        }
+    }
+    void AnimationController()
+    {
+        if(isClimbable)
+        {
+            
+            animator.SetBool("b_IsClimbing", true);
+            animator.SetBool("b_IsRunning", false);
+        }
+        else
+        {
+            animator.SetBool("b_IsRunning", true);
+            animator.SetBool("b_IsClimbing", false); 
         }
     }
 }
