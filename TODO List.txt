@@ -6,7 +6,7 @@ Epic Transform Shape game
 4. Different Vehicles  -Done
 5. Obstacles           -Done
 6. Progression System   - Done (Buggy)
-7. Reward Meter         -Not Completeted
+7. Reward Meter         -DOne
 8. Different levels     - Done
 9. Stairs                -Done
 10. AI                 -Done (Still Needs Fixing Car Change)
@@ -17,10 +17,10 @@ Epic Transform Shape game
 
 
 15. Vehicle Unlock Progress -Not Completed
-16. Race Progress           -Not Completed 
-17. Tap To Play UI          -Needs Reword 
-18. Add Setting Icon in TapToPlay Screen  -Not Completed
-19. Increase Game Speed 
+16. Race Progress           -Done 
+17. Tap To Play UI          -Needs Rework 
+18. Add Setting Icon in TapToPlay Screen  -Done (Need To Add Functionality Behind it)
+19. Increase Game Speed (Done)
 
 20.Sounds -Done
 
@@ -28,5 +28,18 @@ Epic Transform Shape game
 
 Todays Target : 
 
--Running and Climbing animation on character
--Glider Feature on character or add as a new vehicle
+-Running and Climbing animation on character (Done)(Needs Tweaking)
+-Glider Feature on character or add as a new vehicle (Done)
+
+TODO: 
+
+-Add New Levels
+-Work on controller (Constaints, Tweaking)
+
+TODO: 3/1/2024
+
+1.Checkpoint plane -Done
+2.Character Death  -Done
+3)Plane Scale Need to be reset(smaller) -Done
+4)Container Clipping need to be fixed -Done
+5)Tank force effect needs to be reworked (make it smoother) (Done)

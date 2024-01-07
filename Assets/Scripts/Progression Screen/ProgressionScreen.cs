@@ -49,7 +49,7 @@ public class ProgressionScreen : MonoBehaviour
         if (state == GameManager.GameState.ProgressionScreen)
         {
             Upgradeable();
-        }
+        }      
     }
     
 

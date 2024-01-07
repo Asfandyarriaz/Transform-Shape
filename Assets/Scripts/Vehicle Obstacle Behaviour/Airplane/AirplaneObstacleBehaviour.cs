@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class AirplaneObstacleBehaviour : MonoBehaviour
 {
-    [SerializeField] BezierFollow bezierFollowScipt;
-
+    
     [Header("Raycast Front Setting")]
     [SerializeField] Vector3 rayCastOffsetFront;
     [SerializeField] float rayCastLengthFront;
@@ -25,7 +24,6 @@ public class AirplaneObstacleBehaviour : MonoBehaviour
         if(CheckFront() && runOnce != true)
         {
             runOnce = true;
-            bezierFollowScipt.startBezierCurve = true;
         }
     }
 
@@ -41,7 +39,21 @@ public class AirplaneObstacleBehaviour : MonoBehaviour
             {
                 return true;
             }
+            if (hit.collider.CompareTag("Win") && GameManager.Instance.State == GameManager.GameState.Play)
+            {
+                GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+            }
         }
         return false;
     }
+
+    private void ResetFlags()
+    {
+        runOnce = true;
+    }
+    private void OnDisable()
+    {
+        ResetFlags();
+    }
+
 }

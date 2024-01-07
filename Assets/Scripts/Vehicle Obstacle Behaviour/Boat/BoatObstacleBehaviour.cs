@@ -9,6 +9,7 @@ public class BoatObstacleBehaviour : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [SerializeField] Vector3 rayCastOffsetFront;
     [SerializeField] Vector3 rayCastOffsetBack;
+    [SerializeField] float YOffset;
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Water"))
@@ -17,7 +18,7 @@ public class BoatObstacleBehaviour : MonoBehaviour
         }
         else
         {
-            boatMovementScript.allowMove = false;
+            StartCoroutine(TurnAllowMoveOff());
         }
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
@@ -31,6 +32,7 @@ public class BoatObstacleBehaviour : MonoBehaviour
         if (IsOnWaterFront() || IsOnWaterBack())
         {
             boatMovementScript.allowMove = true;
+            //transform.position = new Vector3(transform.position.x, transform.position.y + YOffset, transform.position.z);
         }
         else
         {
@@ -60,5 +62,23 @@ public class BoatObstacleBehaviour : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    private IEnumerator TurnAllowMoveOff()
+    {
+        boatMovementScript.hoverHeight = 1 ;
+
+        float time = 0;
+        float duration = 0.5f;
+        float value = 0;
+        while(time < duration)
+        {
+            value = Mathf.Lerp(boatMovementScript.hoverHeight, boatMovementScript.hoverHeight / 2, time/duration);
+            boatMovementScript.hoverHeight = value;
+            time += Time.deltaTime;
+            yield return null;
+        }
+        boatMovementScript.allowMove = false;
+        boatMovementScript.hoverHeight = 1;
     }
 }

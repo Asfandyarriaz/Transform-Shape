@@ -31,11 +31,17 @@ public class LevelManager : MonoBehaviour
         }
         if (state == GameManager.GameState.Win)
         {
+            /*PlayerDataController.Instance.playerData.currentLevel++;
+            PlayerDataController.Instance.Save();*/
+        }
+        if (state == GameManager.GameState.PostWinSetupGameData)
+        {
+            //Update Level
+            //Save
             PlayerDataController.Instance.playerData.currentLevel++;
             PlayerDataController.Instance.Save();
         }
     }
-
     void SetCurrentLevelActive(int index)
     {
         for (int i = 0; i < levels.Length; i++)

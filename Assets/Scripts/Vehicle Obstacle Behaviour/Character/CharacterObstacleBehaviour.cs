@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -20,13 +21,17 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     [SerializeField] Vector3 rayCastOffsetClimbableBottom;
 
 
+    //Flags
+    private bool slowCheck;
+    
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.CompareTag("Obstacle"))
         {
             Debug.Log("Character Collided");
-            gameObject.SetActive(false);
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Lose);
+/*            gameObject.SetActive(false);
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Lose);*/
         }
 
         //Win Check
@@ -43,6 +48,11 @@ public class CharacterObstacleBehaviour : MonoBehaviour
             characterMovementScript.allowMove = true;
         }
         else
+        {
+            StartCoroutine(TurnClimbingOff());
+        }
+        IsOnGround();
+        /*else
         {
             characterMovementScript.isClimbable = false;
 
@@ -63,7 +73,7 @@ public class CharacterObstacleBehaviour : MonoBehaviour
             {
                 characterMovementScript.isOnGround = true;
             }
-        }
+        }*/
     }
     #region Raycast Check For Stairs
     //Cast a ray to front of character to check for any stairs or Climbable surface
@@ -93,7 +103,7 @@ public class CharacterObstacleBehaviour : MonoBehaviour
         return false;
     }
     //Cast a ray on the ground to check for if is on ground
-    bool IsOnGround()
+    void IsOnGround()
     {
         RaycastHit hit;
         Vector3 rayCastOrigin = (transform.position + rayCastOffsetGround);
@@ -101,9 +111,23 @@ public class CharacterObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(rayCastOrigin, Vector3.down * rayCastGroundLength, Color.green);
         if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, rayCastGroundLength, groundLayer))
         {
-            return true;
+            if (hit.collider.CompareTag("Water"))
+            {
+                if (slowCheck)
+                {
+                    slowCheck = false;
+                    StartCoroutine(characterMovementScript.SlowSpeedInWater());
+                }
+            }
+            else
+            {
+                if (slowCheck == false)
+                {
+                    slowCheck = true;
+                    StartCoroutine(characterMovementScript.ResetSpeed());
+                }
+            }            
         }
-        return false;
     }
     #endregion
 
@@ -137,4 +161,9 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     }
     #endregion
 
+    private IEnumerator TurnClimbingOff()
+    {
+        yield return new WaitForSeconds(0.25f);
+        characterMovementScript.isClimbable = false;
+    }
 }

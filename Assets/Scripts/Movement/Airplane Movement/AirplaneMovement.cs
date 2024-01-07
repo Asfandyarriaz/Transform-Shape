@@ -5,7 +5,6 @@ using UnityEngine;
 public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
 {
     [SerializeField] VehicleProperties vehicleProperties;
-    [SerializeField] BezierFollow bezierFollowScript;
 
     [Header("Set above the ground")]
     [SerializeField] float yOffset;
@@ -33,7 +32,6 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
     {
         GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
     }
-
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
         if (state == GameManager.GameState.Start)
@@ -41,34 +39,21 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
             runOnce = false;
         }
         if (state == GameManager.GameState.Play)
-        {
-            
+        {    
             IncrementSpeed();
         }
     }
-
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        bezierFollowScript.speedModifier = vehicleProperties.speed;
     }
-
     public void Movement()
     {
         StayAboveGround();
-        //if (!bezierFollowScript.bezierRunning)
-        //{
-        //    if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity))
-        //    {
-        //        Vector3 newPosition = hit.point + new Vector3(0, yOffset, 0);
-        //        transform.position = newPosition;
-        //    }
-        //}
     }
     //5 % Increment with each level
     void IncrementSpeed()
-    {
-        
+    {       
         if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
         {
             forwardSpeed = vehicleProperties.speed;
@@ -77,7 +62,6 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
             runOnce = true;
         }
     }
-
     void StayAboveGround()
     {
         // Cast a ray downward from the object's position
@@ -129,10 +113,8 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
             }
         }
     }
-
     IEnumerator KeepMovingUp()
-    {
-        
+    {       
         //float newY = Mathf.Lerp(transform.position.y, transform.position.y + 50f, Time.deltaTime * floatSpeed);
         yield return new WaitForSeconds(1.5f);
         moveForward = true;

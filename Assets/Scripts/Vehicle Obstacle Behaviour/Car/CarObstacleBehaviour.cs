@@ -13,19 +13,25 @@ public class CarObstacleBehaviour : MonoBehaviour
     [Header("Raycast Setting Down")]
     //[SerializeField] float rayCastLengthDown;
     [SerializeField] Vector3 rayCastOffsetDown;
+    [SerializeField] float rayCastDownLength;
 
-    [Header("Layer")]
-    [SerializeField] LayerMask groundLayer;
 
     //Flags
-    private bool slowCheck;
+    public bool slowCheck;
+    public bool startCoroutine = true;
+    private bool startCoroutineRotate = true;
 
     //Varaibles
+    private float stopRotateSeconds = 2f;
     Rigidbody rb;
-    private bool startCoroutine = true;
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            //Stop Car Logic
+        }
+        if (collision.gameObject.CompareTag("Not Passable"))
         {
             //Stop Car Logic
         }
@@ -50,16 +56,16 @@ public class CarObstacleBehaviour : MonoBehaviour
     }
     private void Update()
     {
-        if (RaycastFront() || RaycastDown())
+        if (RaycastFront() || RaycastDown() || RaycastDownCheckForStairs())
         {
             carMovementScript.allowMove = false;
         }
-
-        if (!RaycastFront() && !RaycastDown())
+        else if (!RaycastFront() && !RaycastDown())
         {
             carMovementScript.allowMove = true;
         }
 
+        RaycastDownCheckForStairs();
     }
 
     bool RaycastFront()
@@ -72,8 +78,29 @@ public class CarObstacleBehaviour : MonoBehaviour
         {
             if (hit.collider.CompareTag("Stairs"))
             {
-                if(startCoroutine)
-                StartCoroutine(SlowCar());
+                carMovementScript.StopCar();
+                carMovementScript.allowMove = false;
+                // if(startCoroutine)
+                //StartCoroutine(SlowCar());
+                return true;
+            }
+            if (hit.collider.CompareTag("Not Passable"))
+            {
+                //if (startCoroutine)
+                //StartCoroutine(SlowCar());
+                carMovementScript.StopCar();
+                carMovementScript.allowMove = false;
+                return true;
+            }
+            if (hit.collider.CompareTag("PassThrough"))
+            {
+                if (startCoroutineRotate)
+                    StartCoroutine(TurnOffRotate());
+            }
+            if (hit.collider.CompareTag("Climbable"))
+            {
+                carMovementScript.StopCar();
+                carMovementScript.allowMove = false;
                 return true;
             }
         }
@@ -88,25 +115,42 @@ public class CarObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(origin, Vector3.down * Mathf.Infinity, Color.green);
         if (Physics.Raycast(origin, Vector3.down, out hit, Mathf.Infinity))
         {
-            if (hit.collider.CompareTag("Stairs"))
+            /*if (hit.collider.CompareTag("Stairs"))
             {
+                carMovementScript.StopCar();
                 return true;
-            }
-            if(hit.collider.CompareTag("Water"))
+            }*/
+            if (hit.collider.CompareTag("Water"))
             {
                 if (slowCheck)
                 {
-                    slowCheck = false;
                     StartCoroutine(carMovementScript.SlowSpeedInWater());
+                    slowCheck = false;
                 }
             }
             else
             {
-                if (slowCheck==false)
+                if (slowCheck == false)
                 {
-                    slowCheck = true;
                     StartCoroutine(carMovementScript.ResetSpeed());
+                    slowCheck = true;
                 }
+            }
+        }
+        return false;
+    }
+    bool RaycastDownCheckForStairs()
+    {
+        RaycastHit hit;
+        Vector3 origin = transform.position + rayCastOffsetDown;
+
+        Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.green);
+        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
+        {
+            if (hit.collider.CompareTag("Stairs"))
+            {
+                carMovementScript.StopCar();
+                return true;
             }
         }
         return false;
@@ -117,7 +161,7 @@ public class CarObstacleBehaviour : MonoBehaviour
         startCoroutine = false;
         float time = 0;
         float duration = 1f;
-        while(time < duration)
+        while (time < duration)
         {
             rb.velocity = new Vector3(0, 0, Mathf.Lerp(rb.velocity.z, 0, time / duration));
             time += Time.deltaTime;
@@ -125,5 +169,14 @@ public class CarObstacleBehaviour : MonoBehaviour
         }
         time = 0;
         startCoroutine = true;
+    }
+
+    IEnumerator TurnOffRotate()
+    {
+        startCoroutineRotate = false;
+        carMovementScript.allowRotate = false;
+        yield return new WaitForSeconds(stopRotateSeconds);
+        carMovementScript.allowRotate = true;
+        startCoroutineRotate = true;
     }
 }

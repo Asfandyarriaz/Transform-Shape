@@ -15,6 +15,6 @@ MonoBehaviour:
   numberOfShapes: 4
   shapeNames:
   - Character
-  - Scooter
+  - Car
   - Boat
-  - Airplane
+  - Tank

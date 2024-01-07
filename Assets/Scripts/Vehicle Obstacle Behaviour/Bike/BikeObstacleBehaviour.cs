@@ -13,9 +13,8 @@ public class BikeObstacleBehaviour : MonoBehaviour
     [Header("Raycast Setting Down")]
     //[SerializeField] float rayCastLengthDown;
     [SerializeField] Vector3 rayCastOffsetDown;
+    [SerializeField] float rayCastDownLength;
 
-    [Header("Layer")]
-    [SerializeField] LayerMask groundLayer;
 
     //Varaibles
     Rigidbody rb;
@@ -82,6 +81,8 @@ public class BikeObstacleBehaviour : MonoBehaviour
         {
             if (hit.collider.CompareTag("Stairs"))
             {
+                bikeMovementScript.StopCar();
+                bikeMovementScript.allowMove = false;
                 return true;
             }
             if (hit.collider.CompareTag("Water"))
@@ -92,6 +93,14 @@ public class BikeObstacleBehaviour : MonoBehaviour
                     StartCoroutine(bikeMovementScript.SlowSpeedInWater());
                 }
             }
+            if (hit.collider.CompareTag("Not Passable"))
+            {
+                //if (startCoroutine)
+                //StartCoroutine(SlowCar());
+                bikeMovementScript.StopCar();
+                bikeMovementScript.allowMove = false;
+                return true;
+            }
             else
             {
                 if (slowCheck == false)
@@ -99,6 +108,23 @@ public class BikeObstacleBehaviour : MonoBehaviour
                     slowCheck = true;
                     StartCoroutine(bikeMovementScript.ResetSpeed());
                 }
+            }
+        }
+        return false;
+    }
+
+    bool RaycastDownCheckForStairs()
+    {
+        RaycastHit hit;
+        Vector3 origin = transform.position + rayCastOffsetDown;
+
+        Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.green);
+        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
+        {
+            if (hit.collider.CompareTag("Stairs"))
+            {
+                //bikeMovementScript.StopCar();
+                return true;
             }
         }
         return false;

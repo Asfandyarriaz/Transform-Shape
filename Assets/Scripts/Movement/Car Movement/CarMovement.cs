@@ -26,6 +26,7 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
     //Flags
     [Header("Flags")]
     public bool allowMove;
+    public bool allowRotate = true;
 
     [Header("Other Settings")]
     [SerializeField] VehicleProperties vehicleProperties;
@@ -72,6 +73,7 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
         if (allowMove)
         {
             MoveForward();
+            if(allowRotate)
             RotateToSlope();
         }
     }
@@ -112,7 +114,7 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
         }
     }
 
-    bool IsGrounded()
+    public bool IsGrounded()
     {
         if (Physics.Raycast(transform.position, Vector3.down, rayCastGroundLength))
         {
@@ -147,5 +149,9 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
             time += Time.deltaTime;
             yield return null;
         }
+    }
+    public void StopCar()
+    {
+        rb.velocity = new Vector3(0, 0, 0);
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 /// <summary>
@@ -47,6 +48,9 @@ public class ProgressBarController : MonoBehaviour
     //float totalDistance;
     //float progressPercentage;
 
+    //Flags
+    private bool isSetupComplete = false;
+
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -64,11 +68,12 @@ public class ProgressBarController : MonoBehaviour
         progressBarAI3.value = 0;
 
 
+        StartCoroutine(InitalSetup());
         //Inital Setup
-        GetFinishLine();
+        /*GetFinishLine();
         SetPlayerActiveVehicle();
         GetAITransformList();
-        SetAIActiveVehicle();
+        SetAIActiveVehicle();*/
     }
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
@@ -80,12 +85,13 @@ public class ProgressBarController : MonoBehaviour
     }
     void Update()
     {
-        UserProgress();
-        AI1Progress();
-        AI2Progress();
-        AI3Progress();
-
-
+        if (isSetupComplete)
+        {
+            UserProgress();
+            AI1Progress();
+            AI2Progress();
+            AI3Progress();
+        }
     }
 
     void SetPlayerActiveVehicle()
@@ -102,9 +108,9 @@ public class ProgressBarController : MonoBehaviour
 
     void SetAIActiveVehicle()
     {
-        for(int i=0;i<aiTransformList1.Length;i++)
+        for (int i = 0; i < aiTransformList1.Length; i++)
         {
-            if(aiTransformList1[i].activeSelf)
+            if (aiTransformList1[i].activeSelf)
             {
                 ai1Position = aiTransformList1[i].transform;
             }
@@ -200,7 +206,7 @@ public class ProgressBarController : MonoBehaviour
         GameObject aiObj = null;
         for (int i = 0; i < currentActiveLevel.transform.childCount; i++)
         {
-           if(currentActiveLevel.transform.GetChild(i).name == "AI")
+            if (currentActiveLevel.transform.GetChild(i).name == "AI")
             {
                 aiObj = currentActiveLevel.transform.GetChild(i).gameObject;
                 break;
@@ -215,7 +221,7 @@ public class ProgressBarController : MonoBehaviour
             if (aiObj.transform.GetChild(i).gameObject.name == "AI_1")
             {
                 AIController aiControllerScript1 = aiObj.transform.GetChild(i).gameObject.GetComponentInChildren<AIController>();
-                aiTransformList1 = aiControllerScript1.tranformObjectsArr;              
+                aiTransformList1 = aiControllerScript1.tranformObjectsArr;
             }
             if (aiObj.transform.GetChild(i).gameObject.name == "AI_2")
             {
@@ -228,12 +234,13 @@ public class ProgressBarController : MonoBehaviour
                 aiTransformList3 = aiControllerScript3.tranformObjectsArr;
             }
 
-            
+
         }
     }
 
     void GetFinishLine()
     {
+
         GameObject currentActiveLevel = levelManagerScript.GetCurrentActiveLevels();
         for (int i = 0; i < currentActiveLevel.transform.childCount; i++)
         {
@@ -242,5 +249,21 @@ public class ProgressBarController : MonoBehaviour
                 finishLine = currentActiveLevel.transform.GetChild(i).transform;
             }
         }
+    }
+
+     IEnumerator InitalSetup()
+    {
+        yield return null;
+        GetFinishLine();
+        SetPlayerActiveVehicle();
+        GetAITransformList();
+        SetAIActiveVehicle();
+
+        isSetupComplete = true;
+    }
+
+    private void OnDisable()
+    {
+        isSetupComplete = false;
     }
 }

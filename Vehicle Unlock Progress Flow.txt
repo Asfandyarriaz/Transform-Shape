@@ -1,0 +1,6 @@
+Default Level : 1            Total Levels : 1
+Unlock Boat After 2 levels,  TotalLevels: 2
+Unlock Tank After 3 Levels,  TotalLevels: 5
+Unlock Plane After 3 Levels, Total Levels: 8
+Unlock Scooter After 3 Levels, Total Levels: 11
+Unlock Glider After 3 Levels, Total Levels: 14

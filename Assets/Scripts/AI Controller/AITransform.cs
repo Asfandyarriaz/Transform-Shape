@@ -6,7 +6,7 @@ public class AITransform : MonoBehaviour
 {
     [SerializeField] ParticleManager particleManagerScript;
     [SerializeField] GameObject detectionObject;
-    [SerializeField] BezierFollow bezierFollowScript;
+    AIData aiDataScript;
 
     AIController aiControllerScript;
 
@@ -32,6 +32,7 @@ public class AITransform : MonoBehaviour
 
     private void Start()
     {
+        aiDataScript = GetComponent<AIData>();
         aiControllerScript = GetComponent<AIController>();
     }
 
@@ -135,11 +136,11 @@ public class AITransform : MonoBehaviour
             if (CheckCurrentActiveVehicle().name != "Tank")
             {
                 ChangeToObject("Tank", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
             }
             allowRaycastCheck = true;
         }
-        else if (hit.collider.CompareTag("Ramp"))
+        else if (hit.collider.CompareTag("Stairs"))
         {
             if (CheckCurrentActiveVehicle().name != "Character Walk")
             {
@@ -157,12 +158,14 @@ public class AITransform : MonoBehaviour
             }
             allowRaycastCheck = true;
         }
+
+        //TODO: Change To Fastest Availaible Vehicle
         //Set To Not 
         else if (!hit.collider.CompareTag("Water"))
         {
             if (CheckCurrentActiveVehicle().name == "Boat")
             {
-                ChangeToObject("Car", DisableCurrentActive());
+                ChangeToObject(aiDataScript.fastestVehicleInCurrentLevel.name, DisableCurrentActive()); 
                 GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
             }
             allowRaycastCheck = true;
@@ -187,7 +190,7 @@ public class AITransform : MonoBehaviour
         }
 
         //Change to car after plane
-        ChangeToCarAfterPlane();
+        
         tranformActionPerformed = false;
     }
 
@@ -198,19 +201,7 @@ public class AITransform : MonoBehaviour
             ChangeToObject("Car", DisableCurrentActive());
             GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         }
-    }
-
-    void ChangeToCarAfterPlane()
-    {
-        if(CheckCurrentActiveVehicle().name.Equals("Airplane"))
-        {
-            if (bezierFollowScript.bezierCompleted == true)
-            {
-                ChangeToObject("Car", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
-            }
-        }
-    }
+    }  
 
     IEnumerator StartCarTimer()
     {

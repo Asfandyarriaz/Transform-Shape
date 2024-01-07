@@ -18,6 +18,11 @@ public class GliderObstacleBehaviour : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
 
     //Varaibles
+    private float stopRotateSeconds = 5f;
+    //Flags
+    private bool slowCheck;
+    private bool startCoroutine = true;
+    private bool startCoroutineRotate = true;
 
 
     private void OnCollisionEnter(Collision collision)
@@ -32,24 +37,40 @@ public class GliderObstacleBehaviour : MonoBehaviour
         {
             GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
         }
+
+    }
+
+    private void Update()
+    {
+        RaycastFront();
+        /*if (RaycastFront() || RaycastDown())
+        {
+            gliderMovementScript.allowMove = false;
+        }
+
+        if (!RaycastFront() && !RaycastDown())
+        {
+            gliderMovementScript.allowMove = true;
+        }*/
     }
 
 
-    bool RaycastFront()
+    void RaycastFront()
     {
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetFront;
 
         Debug.DrawRay(origin, Vector3.forward * rayCastLengthFront, Color.red);
         if (Physics.Raycast(origin, Vector3.forward, out hit, rayCastLengthFront))
-        {
-            if (hit.collider.CompareTag("Stairs"))
+        {        
+            if(hit.collider.CompareTag("Jump"))
             {
-
-                return true;
+                Debug.Log("Jump Collider Triggered");
+                gliderMovementScript.allowJump = true;
+                StartCoroutine(gliderMovementScript.Jump());
             }
         }
-        return false;
+
     }
 
     bool RaycastDown()
@@ -64,8 +85,10 @@ public class GliderObstacleBehaviour : MonoBehaviour
             {
                 return true;
             }
+
         }
         return false;
     }
-    
+
+
 }

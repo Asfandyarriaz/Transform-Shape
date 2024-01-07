@@ -147,4 +147,9 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
             yield return null;
         }
     }
+
+    public void StopCar()
+    {
+        rb.velocity = new Vector3(0, 0, 0);
+    }
 }

@@ -76,7 +76,7 @@ public class UIManager : MonoBehaviour
     }
     public void OnClickNextlevel()
     {
-        GameManager.Instance.UpdateGameState(GameState.Win);
+        GameManager.Instance.UpdateGameState(GameState.PostWinSetupGameData);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
     }

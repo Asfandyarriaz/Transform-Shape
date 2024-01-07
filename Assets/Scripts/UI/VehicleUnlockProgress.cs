@@ -36,19 +36,10 @@ public class VehicleUnlockProgress : MonoBehaviour
         {
             SetAllImagesOff();
             StartCoroutine(Wait(0.1f));
-            NewVehicleUnlockProgress();
+            NewVehicleUnlockProgress();        
         }
+        
     }
-    /*private void OnEnable()
-    {
-        SetAllColoredImagesOff();
-        NewVehicleUnlockProgress();
-    }*/
-   /* private void Start()
-    {
-        SetAllColoredImagesOff();
-    }*/
-
     void SetAllImagesOff()
     {
         for (int i = 0; i < vehicles.Length; i++)
@@ -64,58 +55,72 @@ public class VehicleUnlockProgress : MonoBehaviour
     //2 = 100/3 ....
     void NewVehicleUnlockProgress()
     {
-        int boatLevelNeeded = 2;
-        int tankLevelNeeded = 4;
-        int planeLevelNeeded = 7;
-        int scooterLevelNeeded = 10;
-        int gliderLevelNeeded = 14;
+        int boatLevelNeeded = 1;     //After 2 Levels
+        int tankLevelNeeded = 4;     //After Further 3 Levels
+        int planeLevelNeeded = 7;    //After Further 3 Levels
+        int gliderLevelNeeded = 10;   //After Further 3 Levels
+        int scooterLevelNeeded = 13; //After Further 3 Levels
+
+
+        Debug.Log("Inside Vehicle Unlock Progress");
+        Debug.Log("Current Active Level : " + levelManagerScript.Int_GetCurrentActiveLevel());
+        Debug.Log("Boat Level Needed : " + boatLevelNeeded);
+        Debug.Log("Is Current Level " + levelManagerScript.Int_GetCurrentActiveLevel() + " < " + 2);
         //Unlock Boat - Levels Needed 2 .   1,2,3 Number Notation 
-        if (levelManagerScript.Int_GetCurrentActiveLevel() <= boatLevelNeeded)
+        if (levelManagerScript.Int_GetCurrentActiveLevel() <= boatLevelNeeded && levelManagerScript.Int_GetCurrentActiveLevel() < 2)
         {
-            vehicles[0].SetActive(true);
-            StartCoroutine(FillAmountImage(boatColored, 1,0));
             //Save
-            PlayerDataController.Instance.playerData.boatUnlockProgress = boatColored.fillAmount;
+            PlayerDataController.Instance.playerData.boatUnlockProgress += 0.5f;
             PlayerDataController.Instance.Save();
+
+            SetAllImagesOff();
+            vehicles[0].SetActive(true);
+            StartCoroutine(FillAmountImage(boatColored, PlayerDataController.Instance.playerData.boatUnlockProgress,0));
         }
 
         ///Continue Later
-
-       /* //Unlock Tank - Levels Needed 2 .   1,2,3 Number Notation 
-        if (levelManagerScript.Int_GetCurrentActiveLevel() <= tankLevelNeeded)
+        //Unlock Tank - Levels Needed 2 .   1,2,3 Number Notation 
+        else if (levelManagerScript.Int_GetCurrentActiveLevel() <= tankLevelNeeded && levelManagerScript.Int_GetCurrentActiveLevel() >= boatLevelNeeded)
         {
+            //Save
+            PlayerDataController.Instance.playerData.tankUnlockProgress += 0.33f;
+            PlayerDataController.Instance.Save();
+
+            SetAllImagesOff();
             vehicles[1].SetActive(true);
-            StartCoroutine(FillAmountImage(tankColored, 1, 0));
-            //Save
-            PlayerDataController.Instance.playerData.tankUnlockProgress = tankColored.fillAmount;
-            PlayerDataController.Instance.Save();
+            StartCoroutine(FillAmountImage(tankColored, PlayerDataController.Instance.playerData.tankUnlockProgress, 1));
         }
-        if (levelManagerScript.Int_GetCurrentActiveLevel() <= planeLevelNeeded)
+        //Unlock Plane
+        else if (levelManagerScript.Int_GetCurrentActiveLevel() <= planeLevelNeeded && levelManagerScript.Int_GetCurrentActiveLevel() >= tankLevelNeeded)
         {
+            //Save
+            PlayerDataController.Instance.playerData.planeUnlockProgress += 0.33f;
+            PlayerDataController.Instance.Save();
+
+            SetAllImagesOff();
             vehicles[2].SetActive(true);
-            StartCoroutine(FillAmountImage(planeColored, 2, 0));
-            //Save
-            PlayerDataController.Instance.playerData.planeUnlockProgress = planeColored.fillAmount;
-            PlayerDataController.Instance.Save();
+            StartCoroutine(FillAmountImage(planeColored, PlayerDataController.Instance.playerData.planeUnlockProgress, 2));
         }
-        if (levelManagerScript.Int_GetCurrentActiveLevel() <= scooterLevelNeeded)
+        else if (levelManagerScript.Int_GetCurrentActiveLevel() <= gliderLevelNeeded && levelManagerScript.Int_GetCurrentActiveLevel() >= planeLevelNeeded)
         {
+            //Save
+            PlayerDataController.Instance.playerData.gliderUnlockProgress += 0.33f;
+            PlayerDataController.Instance.Save();
+
+            SetAllImagesOff();
             vehicles[3].SetActive(true);
-            StartCoroutine(FillAmountImage(planeColored, 2, 0));
-            //Save
-            PlayerDataController.Instance.playerData.scooterUnlockProgress = scooterColored.fillAmount;
-            PlayerDataController.Instance.Save();
+            StartCoroutine(FillAmountImage(gliderColored, PlayerDataController.Instance.playerData.gliderUnlockProgress, 3));
         }
-        if (levelManagerScript.Int_GetCurrentActiveLevel() <= gliderLevelNeeded)
+        else if (levelManagerScript.Int_GetCurrentActiveLevel() <= scooterLevelNeeded && levelManagerScript.Int_GetCurrentActiveLevel() >= gliderLevelNeeded)
         {
-            vehicles[4].SetActive(true);
-            StartCoroutine(FillAmountImage(gliderColored, 2, 0));
             //Save
-            PlayerDataController.Instance.playerData.gliderUnlockProgress = gliderColored.fillAmount;
+            PlayerDataController.Instance.playerData.scooterUnlockProgress += 0.33f;
             PlayerDataController.Instance.Save();
-        }*/
 
-
+            SetAllImagesOff();
+            vehicles[4].SetActive(true);
+            StartCoroutine(FillAmountImage(scooterColored, PlayerDataController.Instance.playerData.scooterUnlockProgress, 4));
+        }
     }
 
     //Fill image gradually
@@ -123,27 +128,32 @@ public class VehicleUnlockProgress : MonoBehaviour
     {
         float time = 0;
         float durtaion = 10f;
-
-        float fillAmount = 0;
-        float amountAlreadyFilled = (float)PlayerDataController.Instance.playerData.boatUnlockProgress;
-
-        SetPercentageText(amountAlreadyFilled, index);
+        float fillAmount = 0;    
+        
+        //SetPercentageText(amountAlreadyFilled, index);
         while (time < durtaion)
         {
             fillAmount = Mathf.Lerp(fillAmount, amount, (time / durtaion));
-            if (amountAlreadyFilled <= fillAmount) { image.fillAmount = fillAmount; }
+            image.fillAmount = fillAmount;
             time += Time.deltaTime;
             SetPercentageText(image.fillAmount, index);
             yield return null;
-        }
-        
+        }       
         yield return null;
+
+        if(fillAmount >= 99)
+        {
+            fillAmount = 1;
+            image.fillAmount = fillAmount;
+            SetPercentageText(image.fillAmount, index);
+        }
     }
 
     //Percentage text
     void SetPercentageText(float filledAmount, int index)
     {
-        int percentage = Mathf.RoundToInt((filledAmount / 1) * 100);
+        //int percentage = Mathf.RoundToInt((filledAmount / 1) * 100);
+        float percentage = Mathf.Ceil((filledAmount / 1) * 100);
         text[index].text = percentage.ToString() + "%";
     }
 

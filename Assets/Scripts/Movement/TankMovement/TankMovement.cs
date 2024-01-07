@@ -132,6 +132,7 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
     [SerializeField] public bool forceEffect = false;
     private bool runOnce = false;
     public bool allowMove;
+    public bool allowRotate = true;
 
     //Variables
     private float tempForceMultiplier;
@@ -181,8 +182,9 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
         {
             if (allowMove)
             {
-                MoveForward();               
-                RotateToSlope();               
+                MoveForward();
+                if (allowRotate)
+                    RotateToSlope();
             }
         }
     }
@@ -276,5 +278,9 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
             time += Time.deltaTime;
             yield return null;
         }
+    }
+    public void StopCar()
+    {
+        rb.velocity = new Vector3(0, 0, 0);
     }
 }

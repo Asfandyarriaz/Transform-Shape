@@ -39,13 +39,14 @@ public class GameManager : MonoBehaviour
             case GameState.ProgressionScreen: HandleProgressionScreenState(); break;
             case GameState.NextVehicleProgress: HandleNextVehicleProgressState(); break;
             case GameState.Win: HandleWinState(); break;
+            case GameState.PostWinSetupGameData: HandlePostWinSetupGameDataState(); break;
             case GameState.Lose: HandleLoseState(); break;
             default: throw new ArgumentOutOfRangeException(nameof(State), newState, null);
         }
         OnGameStateChanged?.Invoke(newState);
     }
 
-
+    
 
     private void HandleStartState()
     {
@@ -94,6 +95,11 @@ public class GameManager : MonoBehaviour
     {
 
     }
+    private async void HandlePostWinSetupGameDataState()
+    {
+        await Task.Delay(1);
+        UpdateGameState(GameState.Win);
+    }
 
     public enum GameState
     {
@@ -107,6 +113,7 @@ public class GameManager : MonoBehaviour
         ProgressionScreen,
         NextVehicleProgress,
         Win,
+        PostWinSetupGameData,
         Lose
     }
 

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class TankObstacleBehaviour : MonoBehaviour
@@ -12,16 +13,19 @@ public class TankObstacleBehaviour : MonoBehaviour
     //[SerializeField] float rayCastLengthDown;
     [SerializeField] Vector3 rayCastOffsetDown;
 
-    [Header("Layer")]
-    [SerializeField] LayerMask groundLayer;
-
     //Flags
-    private bool slowCheck;
+    public bool slowCheck;
+    public bool startCoroutine = true;
+    private bool startCoroutineRotate = true;
+
+    //Varaibles
+    private float stopRotateSeconds = 2f;
+    Rigidbody rb;
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
-            tankMovementScript.ForceBack(collision.transform.position);
+            //tankMovementScript.ForceBack(collision.transform.position);
             collision.gameObject.SetActive(false);
             //Play Audio
             AudioManager.Instance.PlaySFX(AudioManager.Instance.objectBreakSound);
@@ -43,8 +47,7 @@ public class TankObstacleBehaviour : MonoBehaviour
         if(!RaycastFront() && !RaycastDown())
         {
             tankMovementScript.allowMove = true;
-        }
-            
+        }     
     }
 
     bool RaycastFront()
@@ -58,6 +61,19 @@ public class TankObstacleBehaviour : MonoBehaviour
             if(hit.collider.CompareTag("Stairs"))
             {
                 return true;
+            }
+            if (hit.collider.CompareTag("Not Passable"))
+            {
+                //if (startCoroutine)
+                //StartCoroutine(SlowCar());
+                tankMovementScript.StopCar();
+                tankMovementScript.allowMove = false;
+                return true;
+            }
+            if (hit.collider.CompareTag("PassThrough"))
+            {
+                if (startCoroutineRotate)
+                    StartCoroutine(TurnOffRotate());
             }
         }
         return false;
@@ -94,5 +110,12 @@ public class TankObstacleBehaviour : MonoBehaviour
         }
         return false;
     }
-
+    IEnumerator TurnOffRotate()
+    {
+        startCoroutineRotate = false;
+        tankMovementScript.allowRotate = false;
+        yield return new WaitForSeconds(stopRotateSeconds);
+        tankMovementScript.allowRotate = true;
+        startCoroutineRotate = true;
+    }
 }

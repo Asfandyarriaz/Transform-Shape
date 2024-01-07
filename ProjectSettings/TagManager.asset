@@ -12,6 +12,9 @@ TagManager:
   - Ramp
   - Biketrail
   - Stairs
+  - Not Passable
+  - PassThrough
+  - Jump
   layers:
   - Default
   - TransparentFX
@@ -20,7 +23,7 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
+  - PassThrough
   - 
   - 
   - 
