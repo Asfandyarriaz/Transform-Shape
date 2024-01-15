@@ -1,0 +1,343 @@
+1. Game Fluidity  
+  
+  -When swapping between vehicles there's a small pause that stops the vehicle from moving
+   it happens once per level when player select another vehicles 
+   for e.g: Switching between character -> Car. 
+   Desired output would be to a seamless transition and motion should not be disrupted
+   but motion is stopped for a few moments before running again
+
+
+2. Non passable vehicles should slide down from stairs 
+   
+   -In reference game when vehicles that are not supposed to pass staris are selected 
+    they slide down 
+   -In our game, movement stops and vehicle are stuck in that position
+
+
+3. Cars Flipping Over 
+   
+   -Vehicles sometimes flip over because of rotation script attached onto them
+    and this cause buggy behavior 
+
+    1.Sometimes occur when Boat -> Car 
+    2.Crossing a hill and when car is in air
+
+4. Boat clipping through water
+   
+   -Sometimes boat clip through water
+
+6. AI Too Strong 
+   
+  -Feedback was given that AI was weak
+   Now feedback is given that AI is too strong.
+  -Need to significantly reduce AI difficulty 
+
+7. On Mobile character movement feels jerky 
+ 
+ -It could either be because of low fps 
+  or cinemachine not switching update states properly to detect when to choose
+  either Update, FixedUpdate or LateUpdate. 
+
+8. Car Feels lifeless
+  
+  -We could change camera angle backward after a few moment when car is selected
+   to give the illusion of high speed.
+
+9. Boat exit from water 
+
+  -When boat is coming out of water, theres a little fall or jump that is felt
+   and that transition breaks the immersion.
+
+10. Upgrade Screen Buggy 
+   
+   -Upgrade Screen needs a total overhaul 
+
+11. Character climbing speed slow 
+    
+    -When character is climbing walls it feels slow
+    -Although through character upgrading from upgrade screen we could easily fix 
+     this issue ( Need to discuss further)
+
+12. Remove skip button from upgrade screen 
+    
+    -Skip Button is too distracting and needs to be removed
+
+13. Vehicle unlock screen 99% issue
+    
+    -Vehicle unlocks percentage reaches 99% instead of 100% need to fix
+
+14. Next level transition
+    
+   -Transition from one level to another needs rework
+   -Currently is works by turn virtual camera 2 off and cinemachine transitions
+    to currenlty active camera 
+   -Feedback was given this does not feel good 
+
+15. Character climbing animation issue
+    
+    -When wall climbing is reached theres an animation bug where character switches between wall climbing to running
+     then back to wall climbing 
+
+16. Car stops moving at the edge of stairs 
+    
+    -At the very last step of stairs if we switch to car, car does not move 
+     even though in user's eyes it feels like stairs have finished but 
+     technically car still detects stair colliders
+
+17. Smoke particles not resetting their rotation
+   
+    -At times when we switch to vehciles at an angle, smoke particles 
+     also changes their rotation and do not reset themselves.
+
+18. Tank collision with obstacles feels buggy 
+    
+    -When tank collides with obstacles, it feels jerky and not smooth 
+     as if tank stops for a split second and waits for obstacle to turn off 
+    
+19. Tank rotation after obstacle collision 
+     
+    -Sometimes tank tries to rotate itself after hitting an obstacle. 
+
+20. AI clipping through ground when colliding with obstacles
+    
+    -Sometimes when AI collides with obstacle they clip through ground and fall down 
+
+21. AI keep transition from tank to car
+
+   -Although constraints are given to stop AI from transiting from tank to car but
+    it needs rework 
+
+22. Wall climbing clipping bug 
+
+   -If by any means we force vehicles to clip through wall climbing by switching between vehicles
+    we see unexpected behavior 
+
+23. Tank body not resetting position 
+
+   -there is not constraint to reset tank bodys position 
+    and sometimes through whatnot trigger tank body comes below its original position 
+    and starts clipping through tyres. And keeps this behavior untill game restarts. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code Backup: 
+
+ void RotateToSlope()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + offset, Vector3.down, out hit, rayCastLength, ground))
+        {
+            Debug.DrawRay(transform.position + offset, Vector3.down * rayCastLength, Color.yellow);
+            // Check if the surface hit is a slope (based on the angle)
+            if (Vector3.Angle(hit.normal, Vector3.up) > 0 && Vector3.Angle(hit.normal, Vector3.up) < maxSlopeAngle)
+            {
+                // Calculate the rotation based on the slope normal
+                Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
+
+                // Rotate the object smoothly
+                carObject.transform.rotation = Quaternion.Slerp(carObject.transform.rotation, slopeRotation, rotationSpeed * Time.deltaTime);
+            }
+            else
+            {
+                carObject.transform.rotation = Quaternion.Slerp(carObject.transform.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+            }
+        }
+    }
+
+
+
+Car Movement : 
+
+using System.Collections;
+using UnityEngine;
+
+
+public class CarMovement : MonoBehaviour, IInterfaceMovement
+{
+    [Header("Speed")]
+    public float targetVelocity = 12f;  // Adjust the desired velocity
+    public float forceMultiplier = 1f;  // Adjust the force multiplier
+
+    [Header("Slope Rotation")]
+    public float rotationSpeed = 45f;  // Adjust the rotation speed as needed
+    public float maxSlopeAngle = 45f;  // Adjust the maximum slope angle to consider
+    public LayerMask ground;
+    public Vector3 offset;
+    public float rayCastLength;
+
+
+    [Header("Grounded")]
+    public float rayCastGroundLength;
+    Rigidbody rb;
+
+    [Header("Air")]
+    public float flySpeed;
+
+    //Flags
+    [Header("Flags")]
+    public bool allowMove;
+    public bool allowRotate = true;
+
+    [Header("Other Settings")]
+    [SerializeField] VehicleProperties vehicleProperties;
+
+    //Variables
+    private float tempForceMultiplier;
+    private float tempTargertVelocity;
+
+    private int slowSpeed = 4;
+    private float slowDuration = 0.5f;
+    private float resetDuration = 1.5f;
+
+    private void Awake()
+    {
+        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
+    }
+    private void OnDestroy()
+    {
+        GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
+    }
+
+    float velocityTime;
+    void OnEnable()
+    {
+        velocityTime = 0;
+    }
+  
+    void GameManagerOnGameStateChanged(GameManager.GameState state)
+    {
+        if (state == GameManager.GameState.Start)
+        {
+            //runOnce = false;
+        }
+        if (state == GameManager.GameState.Play)
+        {
+            //targetVelocity = vehicleProperties.speed;
+            //IncrementSpeed();
+        }
+    }
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+
+        tempForceMultiplier = forceMultiplier;
+        tempTargertVelocity = targetVelocity;
+    }
+    public void Movement()
+    {
+        if (allowMove)
+        {
+            MoveForward();
+            if(allowRotate)
+            RotateToSlope();
+        }
+    }
+    void MoveForward()
+    {
+        if (IsGrounded())
+        {
+            forceMultiplier = tempForceMultiplier;
+            float acceleration = (targetVelocity - rb.velocity.magnitude) / Time.fixedDeltaTime;
+            // Calculate force needed
+            float force = rb.mass * acceleration;
+
+            // Add force in the forward direction
+            rb.AddForce(transform.forward * forceMultiplier * force);
+        }
+        else
+        {
+            if (velocityTime<0.2f)
+            {
+                velocityTime += Time.fixedDeltaTime;
+                Vector3 forwardDirection = transform.forward;
+                rb.velocity = forwardDirection * targetVelocity;
+                Vector3 gravityForce = new Vector3(0, -9.81f, 0);
+                rb.AddForce(gravityForce, ForceMode.Acceleration);
+            }
+            else
+            {
+                forceMultiplier = 0;
+                rb.AddForce(Vector3.forward * flySpeed);
+            }
+       
+        }
+    }
+
+    void RotateToSlope()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + offset, Vector3.down, out hit, rayCastLength, ground))
+        {
+            Debug.DrawRay(transform.position + offset, Vector3.down * rayCastLength, Color.yellow);
+            // Check if the surface hit is a slope (based on the angle)
+            if (Vector3.Angle(hit.normal, Vector3.up) > 0 && Vector3.Angle(hit.normal, Vector3.up) < maxSlopeAngle)
+            {
+                // Calculate the rotation based on the slope normal
+                Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
+
+                // Rotate the object smoothly
+                transform.rotation = Quaternion.Slerp(transform.rotation, slopeRotation, rotationSpeed * Time.deltaTime);
+            }
+        }
+    }
+
+    public bool IsGrounded()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, rayCastGroundLength))
+        {
+            Debug.DrawRay(transform.position, Vector3.down * rayCastGroundLength, Color.red);
+            return true;
+        }
+        return false;
+    }
+
+    //Reduce speed by 4 times
+    public IEnumerator SlowSpeedInDifferentTerrain()
+    {
+        float time = 0;
+        float velocity = 0;
+        while (time < slowDuration)
+        {
+            velocity = Mathf.Lerp(targetVelocity, slowSpeed, time / slowDuration);
+            targetVelocity = velocity;
+            time += Time.deltaTime;
+            yield return null;
+        }
+        
+    }
+    public IEnumerator ResetSpeed()
+    {
+        float time = 0;
+        float velocity= 0;
+        while(time < resetDuration) 
+        {
+            velocity = Mathf.Lerp(targetVelocity, tempTargertVelocity, time / resetDuration);
+            targetVelocity = velocity;
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+    public void StopCar()
+    {
+        rb.velocity = new Vector3(0, 0, 0);
+    }
+}
+

@@ -35,7 +35,7 @@ public class GliderObstacleBehaviour : MonoBehaviour
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+            TriggerWinState();
         }
 
     }
@@ -43,17 +43,7 @@ public class GliderObstacleBehaviour : MonoBehaviour
     private void Update()
     {
         RaycastFront();
-        /*if (RaycastFront() || RaycastDown())
-        {
-            gliderMovementScript.allowMove = false;
-        }
-
-        if (!RaycastFront() && !RaycastDown())
-        {
-            gliderMovementScript.allowMove = true;
-        }*/
     }
-
 
     void RaycastFront()
     {
@@ -70,7 +60,6 @@ public class GliderObstacleBehaviour : MonoBehaviour
                 StartCoroutine(gliderMovementScript.Jump());
             }
         }
-
     }
 
     bool RaycastDown()
@@ -89,6 +78,16 @@ public class GliderObstacleBehaviour : MonoBehaviour
         }
         return false;
     }
-
-
+    void TriggerWinState()
+    {
+        if (transform.parent.name.Equals("TransformList"))
+        {
+            GameManager.Instance.winPosition++;
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
+        else
+        {
+            GameManager.Instance.winPosition++;
+        }
+    }
 }

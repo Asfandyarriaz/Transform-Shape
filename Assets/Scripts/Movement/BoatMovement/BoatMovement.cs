@@ -44,7 +44,7 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
         }
         if (state == GameManager.GameState.Play)
         {           
-            IncrementSpeed();
+           IncrementSpeed();
         }
     }
     void Start()
@@ -67,7 +67,6 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
     }
     void IncrementSpeed()
     {
-        
         if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
         {
             speed = vehicleProperties.speed;
@@ -82,6 +81,7 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
         // Cast a ray downward from the object's position
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity))
         {
+            Debug.DrawRay(transform.position, Vector3.down * hit.distance, Color.cyan);
             // Calculate the target height above the ground
             float targetHeight = hit.point.y + hoverHeight;
 
@@ -97,12 +97,6 @@ public class BoatMovement : MonoBehaviour, IInterfaceMovement
             // Gradually ascend or descend the object to the target height
             float newY = Mathf.Lerp(transform.position.y, targetHeight, Time.deltaTime * floatSpeed);
             transform.position = new Vector3(transform.position.x, newY, transform.position.z);
-
-            /*if (moveForward)
-            {
-                //Move Forward
-                transform.Translate(Vector3.forward * forwardSpeed * Time.deltaTime);
-            }*/
         }
     }
 }

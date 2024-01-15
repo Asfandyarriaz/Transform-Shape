@@ -43,3 +43,29 @@ TODO: 3/1/2024
 3)Plane Scale Need to be reset(smaller) -Done
 4)Container Clipping need to be fixed -Done
 5)Tank force effect needs to be reworked (make it smoother) (Done)
+
+
+
+TODO: 10/1/2024
+
+UI Suggestion : 
+1.Cash Image on win panel needs to be adjusted above header
+2.Vehicle Select Buttons needs to be adjusted higher to make space for banner 
+3.Fail panel not decided need to confirm
+4.Add remove ads panel and ad no thanks text to skip 
+5.Upgrade Panel needs to be adjusted again 
+
+Game Suggestions: 
+1.Tank,Ship Scale big reduce 
+2.
+
+
+
+
+ if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            //tankMovementScript.ForceBack(collision.transform.position);
+            collision.gameObject.SetActive(false);
+            //Play Audio
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.objectBreakSound);
+        }

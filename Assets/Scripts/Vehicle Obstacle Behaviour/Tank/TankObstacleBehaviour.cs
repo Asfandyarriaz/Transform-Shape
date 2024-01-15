@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 
-public class TankObstacleBehaviour : MonoBehaviour
+public class TankObstaclebehaviour : MonoBehaviour
 {
     [SerializeField] TankMovement tankMovementScript;
 
@@ -12,6 +14,9 @@ public class TankObstacleBehaviour : MonoBehaviour
     [Header("Raycast Setting Down")]
     //[SerializeField] float rayCastLengthDown;
     [SerializeField] Vector3 rayCastOffsetDown;
+    [SerializeField] float rayCastDownLength;
+    [SerializeField] LayerMask groundLayer;
+
 
     //Flags
     public bool slowCheck;
@@ -20,53 +25,69 @@ public class TankObstacleBehaviour : MonoBehaviour
 
     //Varaibles
     private float stopRotateSeconds = 2f;
-    Rigidbody rb;
-    private void OnCollisionEnter(Collision collision)
+
+    //Flags
+
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (collision.gameObject.CompareTag("Obstacle"))
+        if (hit.gameObject.CompareTag("Obstacle"))
         {
-            //tankMovementScript.ForceBack(collision.transform.position);
-            collision.gameObject.SetActive(false);
-            //Play Audio
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.objectBreakSound);
+            hit.gameObject.SetActive(false);
+        }
+        if (hit.gameObject.CompareTag("Not Passable"))
+        {
+            //Stop Car Logic
+        }
+        if (hit.gameObject.CompareTag("Stairs"))
+        {
+            tankMovementScript.allowMove = false;
+        }
+        if (hit.gameObject.CompareTag("Water"))
+        {
+            tankMovementScript.allowMove = false;
+        }
+        else
+        {
+            tankMovementScript.allowMove = true;
         }
 
         //Win Check
-        if (collision.gameObject.CompareTag("Win"))
+        if (hit.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+            TriggerWinState();
         }
     }
     private void Update()
     {
-        if(RaycastFront() || RaycastDown())
+        if (RaycastFront() || RaycastDown() || RaycastDownCheckForStairs())
         {
             tankMovementScript.allowMove = false;
         }
-
-        if(!RaycastFront() && !RaycastDown())
+        else if (!RaycastFront() && !RaycastDown())
         {
             tankMovementScript.allowMove = true;
-        }     
-    }
+        }
 
+        RaycastDownCheckForStairs();
+    }
+    #region Raycast Check For Stairs
+    //Cast a ray to front of character to check for any stairs or Climbable surface
     bool RaycastFront()
     {
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetFront;
 
-        Debug.DrawRay(origin,Vector3.forward * rayCastLengthFront,Color.red);
-        if(Physics.Raycast(origin,Vector3.forward, out hit,rayCastLengthFront)) 
+        Debug.DrawRay(origin, Vector3.forward * rayCastLengthFront, Color.red);
+        if (Physics.Raycast(origin, Vector3.forward, out hit, rayCastLengthFront))
         {
-            if(hit.collider.CompareTag("Stairs"))
+            if (hit.collider.CompareTag("Stairs"))
             {
+                tankMovementScript.allowMove = false;
                 return true;
             }
             if (hit.collider.CompareTag("Not Passable"))
             {
-                //if (startCoroutine)
-                //StartCoroutine(SlowCar());
-                tankMovementScript.StopCar();
                 tankMovementScript.allowMove = false;
                 return true;
             }
@@ -74,6 +95,11 @@ public class TankObstacleBehaviour : MonoBehaviour
             {
                 if (startCoroutineRotate)
                     StartCoroutine(TurnOffRotate());
+            }
+            if (hit.collider.CompareTag("Climbable"))
+            {
+                tankMovementScript.allowMove = false;
+                return true;
             }
         }
         return false;
@@ -84,31 +110,57 @@ public class TankObstacleBehaviour : MonoBehaviour
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetDown;
 
-        Debug.DrawRay(origin, Vector3.down * Mathf.Infinity, Color.green);
-        if (Physics.Raycast(origin, Vector3.down, out hit, Mathf.Infinity))
+        Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.black);
+        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
         {
-            if (hit.collider.CompareTag("Stairs"))
-            {
-                return true;
-            }
             if (hit.collider.CompareTag("Water"))
             {
                 if (slowCheck)
                 {
-                    slowCheck = false;
                     StartCoroutine(tankMovementScript.SlowSpeedInWater());
+                    slowCheck = false;
                 }
             }
             else
             {
                 if (slowCheck == false)
                 {
-                    slowCheck = true;
                     StartCoroutine(tankMovementScript.ResetSpeed());
+                    slowCheck = true;
                 }
+            }
+            tankMovementScript.velocity.y = 0;
+        }
+
+        return false;
+    }
+    bool RaycastDownCheckForStairs()
+    {
+        RaycastHit hit;
+        Vector3 origin = transform.position + rayCastOffsetDown;
+
+        Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.green);
+        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength, groundLayer))
+        {
+            if (hit.collider.CompareTag("Stairs"))
+            {
+                return true;
             }
         }
         return false;
+    }
+
+    void TriggerWinState()
+    {
+        if (transform.parent.name.Equals("TransformList"))
+        {
+            GameManager.Instance.winPosition++;
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
+        else
+        {
+            GameManager.Instance.winPosition++;
+        }
     }
     IEnumerator TurnOffRotate()
     {
@@ -119,3 +171,5 @@ public class TankObstacleBehaviour : MonoBehaviour
         startCoroutineRotate = true;
     }
 }
+
+#endregion

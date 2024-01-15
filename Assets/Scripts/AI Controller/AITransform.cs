@@ -26,28 +26,75 @@ public class AITransform : MonoBehaviour
 
     //Flags
     private bool allowRaycastCheck = true;
-    private bool changeToCar = false;
-    private bool startCoroutine = true;
     private bool tranformActionPerformed = false;
+    private bool updateAllowed = false;
+    private bool allowAirplaneCoroutine = true;
 
+    private bool isRaycastCoroutineAllowed = true;
+
+    //Timer
+    private float timerDuration = 1f; // Set your desired timer duration in seconds
+    private float timerStartTime;
+
+    //Vehicle Timer
+    private float vehicleStartTimer;
+    private float vehicleDuration = 1f;
+
+    //y offset Vehicle Transformation
+    private float yOffset = 0.1f;
+
+    [Header("Grounded Offset")]
+    [SerializeField] Vector3 groundOffset;
+    [SerializeField] float groundRaycastLength;
+    [Header("Raycast Front Offset For Vehicle Change")]
+    [SerializeField] Vector3 frontOffset;
+    [SerializeField] float frontRaycastLength;
+
+    #region State Handling
+    private void Awake()
+    {
+        GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
+    }
+    private void OnDestroy()
+    {
+        GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
+    }
+
+    void GameManagerOnGameStateChanged(GameManager.GameState state)
+    {
+        if (state == GameManager.GameState.Play)
+        {
+            updateAllowed = true;
+        }
+        else
+        {
+            updateAllowed = false;
+        }
+    }
+    #endregion
     private void Start()
     {
-        aiDataScript = GetComponent<AIData>();
         aiControllerScript = GetComponent<AIController>();
+        aiDataScript = GetComponent<AIData>();
+        StartTimer();
     }
 
     private void Update()
     {
-        if (allowRaycastCheck)
+        if (updateAllowed)
         {
-            CheckFront();
-            CheckDown();
-        }
+            ResetFlags();
+            if (allowRaycastCheck)
+            {
+                CheckFront();
+                CheckDown();
+            }
+            ChangeToVehicleTimer();
 
-        if (startCoroutine)
-        {
-            StartCoroutine(StartCarTimer());
-            startCoroutine = false;
+            if (allowAirplaneCoroutine)
+            {
+                StartCoroutine(ChangeToVehicleAfterPlane());
+            }
         }
     }
 
@@ -84,14 +131,22 @@ public class AITransform : MonoBehaviour
             if (aiControllerScript.tranformObjectsArr[i].name == transformToName)
             {
                 //movementControllerScript.tranformObjectsArr[i].transform.position = currentPos.position;
-                Vector3 newPos = new Vector3(aiControllerScript.aiStartingPosition.position.x, currentPos.position.y, currentPos.position.z);
+                Vector3 newPos = new Vector3(aiControllerScript.aiStartingPosition.position.x, currentPos.position.y + yOffset, currentPos.position.z);
                 aiControllerScript.tranformObjectsArr[i].transform.position = newPos;
                 aiControllerScript.tranformObjectsArr[i].transform.rotation = resetRotation;
                 aiControllerScript.tranformObjectsArr[i].SetActive(true);
+
+                //Set Detection object as the child of activated vehicle
                 detectionObject.transform.SetParent(aiControllerScript.tranformObjectsArr[i].transform);
+                detectionObject.transform.localPosition = new Vector3(0, 0, 0);
 
                 //Set Particle as child and play
                 PlayParticles(i);
+
+                //TODO: Reset Flag Using Timers
+                tranformActionPerformed = true;
+                RestartTimer();
+                //StartCoroutine(ResetFlags());
                 break;
             }
         }
@@ -108,14 +163,12 @@ public class AITransform : MonoBehaviour
     {
         RaycastHit hit;
         Vector3 rayCastOrigin = (detectionObject.transform.position + offsetFront);
-        Debug.DrawRay(rayCastOrigin, Vector3.forward * frontLength, Color.green);
+        Debug.DrawRay(rayCastOrigin, transform.forward * frontLength, Color.green);
         if (Physics.Raycast(rayCastOrigin, Vector3.forward, out hit, frontLength))
-        {
-            //allowRaycastCheck = false;
+        {           
             PerfromActionOnRaycastHit(hit);
         }
     }
-
     void CheckDown()
     {
         RaycastHit hit;
@@ -123,164 +176,250 @@ public class AITransform : MonoBehaviour
         Debug.DrawRay(rayCastOrigin, Vector3.down * downLength, Color.red);
         if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, downLength))
         {
-            //allowRaycastCheck = false;
-            tranformActionPerformed = true;
             PerfromActionOnRaycastHit(hit);
         }
     }
-
+    bool RaycastDownForAirplane()
+    {
+        RaycastHit hit;
+        Vector3 rayCastOrigin = (detectionObject.transform.position + offsetDown);
+        if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, Mathf.Infinity))
+        {
+            Debug.DrawRay(rayCastOrigin, Vector3.down * hit.distance, Color.red);
+            if (hit.collider.CompareTag("Climbable") || hit.collider.CompareTag("Stairs") || hit.collider.CompareTag("Biketrail") || hit.collider.CompareTag("Water"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     void PerfromActionOnRaycastHit(RaycastHit hit)
     {
         if (hit.collider.CompareTag("Obstacle"))
         {
-            if (CheckCurrentActiveVehicle().name != "Tank")
-            {
-                ChangeToObject("Tank", DisableCurrentActive());
-                //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
-            }
-            allowRaycastCheck = true;
+            ObstacleBehavior();
         }
         else if (hit.collider.CompareTag("Stairs"))
         {
-            if (CheckCurrentActiveVehicle().name != "Character Walk")
+            if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
             {
-                ChangeToObject("Character Walk", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                if (CheckCurrentActiveVehicle().name != "Character Walk")
+                {
+                    ChangeToObject("Character Walk", DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                    //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                }
             }
-            allowRaycastCheck = true;
+            else
+            {
+                if (isRaycastCoroutineAllowed)
+                    StartCoroutine(TurnOffRaycast());
+            }
+            //allowRaycastCheck = true;
+        }
+        else if (hit.collider.CompareTag("Climbable"))
+        {
+            if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
+            {
+                if (CheckCurrentActiveVehicle().name != "Character Walk")
+                {
+                    ChangeToObject("Character Walk", DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                    //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                }
+            }
+            else
+            {
+                if (isRaycastCoroutineAllowed)
+                    StartCoroutine(TurnOffRaycast(0));
+            }
+            //allowRaycastCheck = true;
         }
         else if (hit.collider.CompareTag("Water"))
         {
-            if (CheckCurrentActiveVehicle().name != "Boat")
+            if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
             {
-                ChangeToObject("Boat", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                if (CheckCurrentActiveVehicle().name != "Boat")
+                {
+                    ChangeToObject("Boat", DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                }
             }
-            allowRaycastCheck = true;
+            else
+            {
+                if (isRaycastCoroutineAllowed)
+                    StartCoroutine(TurnOffRaycast());
+            }
+            //allowRaycastCheck = true;
         }
-
-        //TODO: Change To Fastest Availaible Vehicle
         //Set To Not 
         else if (!hit.collider.CompareTag("Water"))
         {
-            if (CheckCurrentActiveVehicle().name == "Boat")
+            if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
             {
-                ChangeToObject(aiDataScript.fastestVehicleInCurrentLevel.name, DisableCurrentActive()); 
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                if (CheckCurrentActiveVehicle().name == "Boat")
+                {
+                    ChangeToObject(aiDataScript.fastestVehicleInCurrentLevel.name, DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                    //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                }
             }
-            allowRaycastCheck = true;
+            else
+            {
+                if (isRaycastCoroutineAllowed)
+                    StartCoroutine(TurnOffRaycast());
+            }
+            //allowRaycastCheck = true;
         }
         if (hit.collider.CompareTag("Biketrail"))
         {
-            if (CheckCurrentActiveVehicle().name != "Scooter")
+            if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
             {
-                ChangeToObject("Scooter", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                if (CheckCurrentActiveVehicle().name != "Scooter")
+                {
+                    ChangeToObject("Scooter", DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                    //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                }
             }
-            allowRaycastCheck = true;
+            else
+            {
+                if (isRaycastCoroutineAllowed)
+                    StartCoroutine(TurnOffRaycast());
+            }
+            //allowRaycastCheck = true;
         }
         if (hit.collider.CompareTag("Fly"))
         {
-            if (CheckCurrentActiveVehicle().name != "Airplane")
+            if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
             {
-                ChangeToObject("Airplane", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                if (CheckCurrentActiveVehicle().name != "Airplane")
+                {
+                    ChangeToObject("Airplane", DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                    //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                }
             }
-            allowRaycastCheck = true;
+            else
+            {
+                if (isRaycastCoroutineAllowed)
+                    StartCoroutine(TurnOffRaycast());
+            }
+            //allowRaycastCheck = true;
         }
 
+        RestartVehicleTimer();
         //Change to car after plane
-        
-        tranformActionPerformed = false;
+        //ChangeToCarAfterPlane();
     }
 
-    void ChangeToCar()
+    void ChangeToVehicle()
     {
-        if (CheckCurrentActiveVehicle().name != "Car" || CheckCurrentActiveVehicle().name != "Boat" || CheckCurrentActiveVehicle().name != "Airplane")
+        if (CheckCurrentActiveVehicle().name != "Car" && CheckCurrentActiveVehicle().name != "Boat" && CheckCurrentActiveVehicle().name != "Airplane")
         {
-            ChangeToObject("Car", DisableCurrentActive());
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+            if (CheckCurrentActiveVehicle().name != aiDataScript.fastestVehicleInCurrentLevel.name)
+            {
+                ChangeToObject(aiDataScript.fastestVehicleInCurrentLevel.name, DisableCurrentActive());
+                aiControllerScript.hasVehicleChanged = true;
+                //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+            }
         }
-    }  
-
-    IEnumerator StartCarTimer()
-    {
-        float time = Random.Range(minTime, maxTime);
-
-        while (time <= 0 || !tranformActionPerformed)
-        {
-            yield return new WaitForSeconds(1f);
-            time -= 1;
-        }
-
-        if (time <= 0)
-            ChangeToCar();
-
-        startCoroutine = true;
     }
 
-    //Tried to change difficulty using coroutine
-    //But resulted in buggy behaviour
-    /*IEnumerator PerfromActionOnRaycastHit(RaycastHit hit)
+    IEnumerator ChangeToVehicleAfterPlane()
     {
-        yield return new WaitForSeconds(Random.Range(minTime, maxTime));
-        if (hit.collider.CompareTag("Obstacle"))
+        allowAirplaneCoroutine = false;
+        if (CheckCurrentActiveVehicle().name.Equals("Airplane"))
         {
-            if (CheckCurrentActiveVehicle().name != "Tank")
+            yield return new WaitForSeconds(Random.Range(3, 6));
+            if (RaycastDownForAirplane())
             {
-                ChangeToObject("Tank", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
+                {
+                    ChangeToObject(aiDataScript.fastestVehicleInCurrentLevel.name, DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                }
             }
-            allowRaycastCheck = true;
+            else
+            {
+                if (isRaycastCoroutineAllowed)
+                    StartCoroutine(TurnOffRaycast());
+            }
         }
-        else if (hit.collider.CompareTag("Ramp"))
+        allowAirplaneCoroutine = true;
+    }
+
+    #region Raycast Vehicle Transform
+    bool CheckFrontTransform()
+    {
+        Vector3 raycastOrigin = (detectionObject.transform.position + frontOffset);
+        Debug.DrawRay(raycastOrigin, transform.forward * frontRaycastLength, Color.black);
+        if (Physics.Raycast(raycastOrigin, Vector3.forward * frontRaycastLength, out RaycastHit hit, frontRaycastLength))
         {
-            if (CheckCurrentActiveVehicle().name != "Character Walk")
+            //Debug.Log("Hit Raycast Front : " + hit.collider.tag);
+            if (hit.collider.CompareTag("Climbable") || hit.collider.CompareTag("Stairs") || hit.collider.CompareTag("Biketrail") || hit.collider.CompareTag("Water"))
             {
-                ChangeToObject("Character Walk", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                return false;
             }
-            allowRaycastCheck = true;
+            else
+            {
+                return true;
+            }
         }
-        else if (hit.collider.CompareTag("Water"))
+        return true;
+    }
+
+    //Check For Grounded
+    //Then Check For Constraints
+    //Then Perform Vehicle Change Into Fastest Vehicle In Level
+    bool CheckGrounded()
+    {
+        RaycastHit hit;
+        Vector3 rayCastOrigin = (detectionObject.transform.position + groundOffset);
+        Debug.DrawRay(rayCastOrigin, Vector3.down * groundRaycastLength, Color.white);
+        if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, groundRaycastLength))
         {
-            if (CheckCurrentActiveVehicle().name != "Boat")
+            if (hit.collider.CompareTag("Climbable") || hit.collider.CompareTag("Stairs") || hit.collider.CompareTag("Biketrail") || hit.collider.CompareTag("Water"))
             {
-                ChangeToObject("Boat", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                return false;
             }
-            allowRaycastCheck = true;
-        }
-        //Set To Not 
-        else if (!hit.collider.CompareTag("Water"))
-        {
-            if (CheckCurrentActiveVehicle().name == "Boat")
+            else
             {
-                ChangeToObject("Car", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+                return true;
             }
-            allowRaycastCheck = true;
         }
-        if (hit.collider.CompareTag("Biketrail"))
-        {
-            if (CheckCurrentActiveVehicle().name != "Scooter")
-            {
-                ChangeToObject("Scooter", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
-            }
-            allowRaycastCheck = true;
-        }
-        if (hit.collider.CompareTag("Fly"))
-        {
-            if (CheckCurrentActiveVehicle().name != "Airplane")
-            {
-                ChangeToObject("Airplane", DisableCurrentActive());
-                GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
-            }
-            allowRaycastCheck = true;
-        }
-    }*/
+        return true;
+    }
+
     #endregion
+    void ChangeToVehicleTimer()
+    {
+        if (Time.time - vehicleStartTimer >= vehicleDuration)
+        {
+            if (CheckFrontTransform() && CheckGrounded())
+            {
+                if (tranformActionPerformed == false)
+                {
+                    if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
+                    {
+                        ChangeToVehicle();
+                    }
+                    else
+                    {
+                        RestartVehicleTimer();
+                    }
+                }
+            }
+            RestartVehicleTimer();
+        }
+    }
+    #endregion
+
+
 
     //Play Particles according to the parents name 
     void PlayParticles(int index)
@@ -298,4 +437,82 @@ public class AITransform : MonoBehaviour
             StartCoroutine(particleManagerScript.PlayTransformParticle(aiControllerScript.tranformObjectsArr[index].transform, particleManagerScript.transformParticleAI3));
         }
     }
+
+    void ResetFlags()
+    {
+        // Check if the timer has elapsed
+        if (Time.time - timerStartTime >= timerDuration)
+        {
+            // Timer has elapsed, reset the flag
+            tranformActionPerformed = false;
+
+            // Restart the timer
+            RestartTimer();
+        }
+    }
+    private void StartTimer()
+    {
+        timerStartTime = Time.time;
+        vehicleStartTimer = Time.time;
+    }
+    private void RestartTimer()
+    {
+        // Reset the timer start time to the current time
+        timerStartTime = Time.time;
+    }
+    private void RestartVehicleTimer()
+    {
+        vehicleStartTimer = Time.time;
+    }
+    IEnumerator TurnOffRaycast()
+    {
+        isRaycastCoroutineAllowed = false;
+        allowRaycastCheck = false;
+
+        yield return new WaitForSeconds(1f);
+        allowRaycastCheck = true;
+        isRaycastCoroutineAllowed = true;
+    }
+    IEnumerator TurnOffRaycast(float time)
+    {
+        isRaycastCoroutineAllowed = false;
+        allowRaycastCheck = false;
+        yield return new WaitForSeconds(time);
+        allowRaycastCheck = true;
+        isRaycastCoroutineAllowed = true;
+    }
+
+    #region Change To Different Vehicles Functions
+    //Change to tank if avalaible else change to airplane
+    void ObstacleBehavior()
+    {
+        if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
+        {
+            bool tankAvailable = true;
+            for (int i = 0; i < aiDataScript.activeVehicles.Count; i++)
+            {
+                if (!aiDataScript.activeVehicles[i].Equals("Tank"))
+                {
+                    tankAvailable = false;
+                }
+                else
+                {
+                    tankAvailable = true;
+                    break;
+                }
+            }
+
+            if (tankAvailable)
+            {
+                ChangeToObject("Tank", DisableCurrentActive());
+                aiControllerScript.hasVehicleChanged = true;
+            }
+            else
+            {
+                ChangeToObject("Airplane", DisableCurrentActive());
+                aiControllerScript.hasVehicleChanged = true;
+            }
+        }
+    }
+    #endregion
 }

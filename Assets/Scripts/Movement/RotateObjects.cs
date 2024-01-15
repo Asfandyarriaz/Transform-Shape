@@ -25,6 +25,7 @@ public class RotateObjects : MonoBehaviour
             {
                 // Rotate the tire around its local forward axis
                 objectToRotate[i].transform.Rotate(Vector3.right * rotationSpeed * Time.deltaTime);
+            
             }
 
     }

@@ -82,6 +82,7 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
             // Check for a wall in front
             if (Physics.Raycast(transform.position, transform.forward, out RaycastHit wallHit, wallDetectionDistance))
             {
+                Debug.DrawRay(transform.position, Vector3.forward * wallDetectionDistance, Color.black);
                 if (!wallHit.collider.CompareTag("Win"))
                 {
                     moveForward = false;

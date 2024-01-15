@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public static event Action<GameState> OnGameStateChanged;
 
     //Global Varaibles
-    //public int totalCash;
+    public int winPosition = 0;
 
     private void Awake()
     {
@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+       // UpdateGameState(GameState.PreStart);
         UpdateGameState(GameState.Start);
     }
 
@@ -29,8 +30,10 @@ public class GameManager : MonoBehaviour
         State = newState;
         switch (State)
         {
+            //case GameState.PreStart: HandlePreStartState(); break;
             case GameState.Start: HandleStartState(); break;
             case GameState.Settings: HandleSettingsState(); break;
+            case GameState.RemoveAds: HandleRemoveAdsState(); break;
             case GameState.Camera: HandleCameraState(); break;
             case GameState.SetupGameData: HandleSetupGameDataState(); break;
             case GameState.Play: HandlePlayState(); break;
@@ -46,13 +49,25 @@ public class GameManager : MonoBehaviour
         OnGameStateChanged?.Invoke(newState);
     }
 
-    
 
-    private void HandleStartState()
+    private void Update()
     {
 
     }
+    /*private void HandlePreStartState()
+    {
+        //await Task.Delay(1);
+        UpdateGameState(GameState.Start);
+    }*/
+    private void HandleStartState()
+    {       
+        winPosition = 0;
+    }
     private void HandleSettingsState()
+    {
+
+    }
+    private void HandleRemoveAdsState()
     {
 
     }
@@ -68,6 +83,7 @@ public class GameManager : MonoBehaviour
     }
     private void HandlePlayState()
     {
+
     }
     private async void HandleTransformState()
     {
@@ -103,8 +119,10 @@ public class GameManager : MonoBehaviour
 
     public enum GameState
     {
+        //PreStart,
         Start,
         Settings,
+        RemoveAds,
         SetupGameData,
         Camera,
         Play,

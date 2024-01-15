@@ -26,6 +26,7 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     //Flags
     [Header("Flags")]
     public bool allowMove;
+    public bool allowRotate = true;
 
     [Header("Other Settings")]
     [SerializeField] VehicleProperties vehicleProperties;
@@ -51,18 +52,18 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            //runOnce = false;
+
         }
         if (state == GameManager.GameState.Play)
         {
-            //targetVelocity = vehicleProperties.speed;
-            //IncrementSpeed();
+            
         }
     }
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+
         tempForceMultiplier = forceMultiplier;
         tempTargertVelocity = targetVelocity;
     }
@@ -71,7 +72,8 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
         if (allowMove)
         {
             MoveForward();
-            RotateToSlope();
+            if (allowRotate)
+                RotateToSlope();
         }
     }
     void MoveForward()
@@ -111,7 +113,7 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
         }
     }
 
-    bool IsGrounded()
+    public bool IsGrounded()
     {
         if (Physics.Raycast(transform.position, Vector3.down, rayCastGroundLength))
         {
@@ -122,7 +124,7 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     }
 
     //Reduce speed by 4 times
-    public IEnumerator SlowSpeedInWater()
+    public IEnumerator SlowSpeedInDifferentTerrain()
     {
         float time = 0;
         float velocity = 0;
@@ -133,7 +135,6 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
             time += Time.deltaTime;
             yield return null;
         }
-
     }
     public IEnumerator ResetSpeed()
     {
@@ -147,7 +148,6 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
             yield return null;
         }
     }
-
     public void StopCar()
     {
         rb.velocity = new Vector3(0, 0, 0);

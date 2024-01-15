@@ -16,23 +16,38 @@ public class BikeObstacleBehaviour : MonoBehaviour
     [SerializeField] float rayCastDownLength;
 
 
+    //Flags
+    public bool slowCheck;
+    public bool startCoroutine = true;
+    private bool startCoroutineRotate = true;
+
     //Varaibles
+    private float stopRotateSeconds = 2f;
     Rigidbody rb;
 
-    //Flags
-    private bool slowCheck;
-    private bool startCoroutine = true;
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
             //Stop Car Logic
-        }       
+        }
+        if (collision.gameObject.CompareTag("Not Passable"))
+        {
+            //Stop Car Logic
+        }
+        if (collision.gameObject.CompareTag("Water"))
+        {
+            bikeMovementScript.allowMove = false;
+        }
+        else
+        {
+            bikeMovementScript.allowMove = true;
+        }
 
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+            TriggerWinState();
         }
     }
     private void Start()
@@ -41,16 +56,16 @@ public class BikeObstacleBehaviour : MonoBehaviour
     }
     private void Update()
     {
-        if (RaycastFront() || RaycastDown())
+        if (RaycastFront() || RaycastDown() || RaycastDownCheckForStairs())
         {
             bikeMovementScript.allowMove = false;
         }
-
-        if (!RaycastFront() && !RaycastDown())
+        else if (!RaycastFront() && !RaycastDown())
         {
             bikeMovementScript.allowMove = true;
         }
 
+        RaycastDownCheckForStairs();
     }
 
     bool RaycastFront()
@@ -63,8 +78,29 @@ public class BikeObstacleBehaviour : MonoBehaviour
         {
             if (hit.collider.CompareTag("Stairs"))
             {
-                if (startCoroutine)
-                    StartCoroutine(SlowCar());
+                bikeMovementScript.StopCar();
+                bikeMovementScript.allowMove = false;
+                // if(startCoroutine)
+                //StartCoroutine(SlowCar());
+                return true;
+            }
+            if (hit.collider.CompareTag("Not Passable"))
+            {
+                //if (startCoroutine)
+                //StartCoroutine(SlowCar());
+                bikeMovementScript.StopCar();
+                bikeMovementScript.allowMove = false;
+                return true;
+            }
+            if (hit.collider.CompareTag("PassThrough"))
+            {
+                if (startCoroutineRotate)
+                    StartCoroutine(TurnOffRotate());
+            }
+            if (hit.collider.CompareTag("Climbable"))
+            {
+                bikeMovementScript.StopCar();
+                bikeMovementScript.allowMove = false;
                 return true;
             }
         }
@@ -79,40 +115,30 @@ public class BikeObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(origin, Vector3.down * Mathf.Infinity, Color.green);
         if (Physics.Raycast(origin, Vector3.down, out hit, Mathf.Infinity))
         {
-            if (hit.collider.CompareTag("Stairs"))
+            /*if (hit.collider.CompareTag("Stairs"))
             {
-                bikeMovementScript.StopCar();
-                bikeMovementScript.allowMove = false;
+                carMovementScript.StopCar();
                 return true;
-            }
+            }*/
             if (hit.collider.CompareTag("Water"))
             {
                 if (slowCheck)
                 {
+                    StartCoroutine(bikeMovementScript.SlowSpeedInDifferentTerrain());
                     slowCheck = false;
-                    StartCoroutine(bikeMovementScript.SlowSpeedInWater());
                 }
-            }
-            if (hit.collider.CompareTag("Not Passable"))
-            {
-                //if (startCoroutine)
-                //StartCoroutine(SlowCar());
-                bikeMovementScript.StopCar();
-                bikeMovementScript.allowMove = false;
-                return true;
             }
             else
             {
                 if (slowCheck == false)
                 {
-                    slowCheck = true;
                     StartCoroutine(bikeMovementScript.ResetSpeed());
+                    slowCheck = true;
                 }
             }
         }
         return false;
     }
-
     bool RaycastDownCheckForStairs()
     {
         RaycastHit hit;
@@ -123,7 +149,7 @@ public class BikeObstacleBehaviour : MonoBehaviour
         {
             if (hit.collider.CompareTag("Stairs"))
             {
-                //bikeMovementScript.StopCar();
+                bikeMovementScript.StopCar();
                 return true;
             }
         }
@@ -143,5 +169,26 @@ public class BikeObstacleBehaviour : MonoBehaviour
         }
         time = 0;
         startCoroutine = true;
+    }
+
+    IEnumerator TurnOffRotate()
+    {
+        startCoroutineRotate = false;
+        bikeMovementScript.allowRotate = false;
+        yield return new WaitForSeconds(stopRotateSeconds);
+        bikeMovementScript.allowRotate = true;
+        startCoroutineRotate = true;
+    }
+    void TriggerWinState()
+    {
+        if (transform.parent.name.Equals("TransformList"))
+        {
+            GameManager.Instance.winPosition++;
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
+        else
+        {
+            GameManager.Instance.winPosition++;
+        }
     }
 }

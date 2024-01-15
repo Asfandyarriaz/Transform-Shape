@@ -47,7 +47,7 @@ public class CarObstacleBehaviour : MonoBehaviour
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+                TriggerWinState();           
         }
     }
     private void Start()
@@ -115,16 +115,11 @@ public class CarObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(origin, Vector3.down * Mathf.Infinity, Color.green);
         if (Physics.Raycast(origin, Vector3.down, out hit, Mathf.Infinity))
         {
-            /*if (hit.collider.CompareTag("Stairs"))
-            {
-                carMovementScript.StopCar();
-                return true;
-            }*/
             if (hit.collider.CompareTag("Water"))
             {
                 if (slowCheck)
                 {
-                    StartCoroutine(carMovementScript.SlowSpeedInWater());
+                    StartCoroutine(carMovementScript.SlowSpeedInDifferentTerrain());
                     slowCheck = false;
                 }
             }
@@ -178,5 +173,17 @@ public class CarObstacleBehaviour : MonoBehaviour
         yield return new WaitForSeconds(stopRotateSeconds);
         carMovementScript.allowRotate = true;
         startCoroutineRotate = true;
+    }
+    void TriggerWinState()
+    {
+        if (transform.parent.name.Equals("TransformList"))
+        {
+            GameManager.Instance.winPosition++;
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
+        else
+        {
+            GameManager.Instance.winPosition++;
+        }
     }
 }

@@ -25,22 +25,17 @@ public class GliderMovement : MonoBehaviour, IInterfaceMovement
         characterController = GetComponent<CharacterController>();
         tempSpeed = speed;
     }
-
     public void Movement()
     {
         HandleMovement();
         GroundedSpeed();
         ApplyGravity();
-
     }
-
-
     void HandleMovement()
     {
         Vector3 moveVelocity = Vector3.forward * speed;
         characterController.Move(moveVelocity * Time.deltaTime);
     }
-
     public void GroundedSpeed()
     {
         if (allowJump != true)
@@ -61,7 +56,6 @@ public class GliderMovement : MonoBehaviour, IInterfaceMovement
             }
         }
     }
-
     public IEnumerator Jump()
     {
         yield return null;
@@ -69,13 +63,11 @@ public class GliderMovement : MonoBehaviour, IInterfaceMovement
         yield return null;
         allowJump = false;
     }
-
     void ApplyGravity()
     {
         velocity.y += gravity * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
     }
-
     bool IsGrounded()
     {
         Debug.DrawRay(transform.position, Vector3.down * rayCastLengthGround, Color.green);

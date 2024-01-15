@@ -21,6 +21,14 @@ public class PlayerDataSerializeable  {
     public float airplaneUnlockProgress = 0;
     public float gliderUnlockProgress = 0;
 
+    //UI Setting
+    public bool isSoundAllow = true;
+    public bool isMusicAllow = true;
+    public bool isVibrationAllow = true;
+    public string playerName;
+
+    //Transform Remake List End
+    //------------------------------------------------
     public int PlayerCash = 100;
 	public int Rank =1;
 	public int xpoints =0;

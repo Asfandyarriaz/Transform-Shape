@@ -15,7 +15,7 @@ public class AirplaneObstacleBehaviour : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+            TriggerWinState();
         }
     }
 
@@ -55,5 +55,16 @@ public class AirplaneObstacleBehaviour : MonoBehaviour
     {
         ResetFlags();
     }
-
+    void TriggerWinState()
+    {
+        if (transform.parent.name.Equals("TransformList"))
+        {
+            GameManager.Instance.winPosition++;
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
+        else
+        {
+            GameManager.Instance.winPosition++;
+        }
+    }
 }

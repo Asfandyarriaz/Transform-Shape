@@ -35,16 +35,8 @@ public class CameraController : MonoBehaviour
     }
     private void Update()
     {
-        /*if (GameManager.Instance.State == GameManager.GameState.Start)
-        {
-            if (Input.touchCount > 0)
-            {
-                if (Input.GetTouch(0).phase == TouchPhase.Began)
-                {
-                    GameManager.Instance.UpdateGameState(GameManager.GameState.Camera);
-                }
-            }
-        }*/
+        if (movementScript.hasVehicleChanged)
+            CheckCurrentActiveObject();
     }
 
     void GameManagerOnGameStateChanged(GameManager.GameState state)
@@ -54,7 +46,7 @@ public class CameraController : MonoBehaviour
         else if (state == GameManager.GameState.Start)
             ResetFlags();
 
-        if(state != GameManager.GameState.Play)
+        if (state != GameManager.GameState.Play)
             CheckCurrentActiveObject();
 
         if (state == GameManager.GameState.Cash)
@@ -87,7 +79,7 @@ public class CameraController : MonoBehaviour
     #region On Click Change Camera
     public void OnClickChangeCamera()
     {
-        
+
         if (changeToNew)
         {
             StartCoroutine(Lerp(Transposer.m_FollowOffset, followOffset));
@@ -100,12 +92,12 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    IEnumerator Lerp(Vector3 start,Vector3 end)
+    IEnumerator Lerp(Vector3 start, Vector3 end)
     {
         float time = 0;
-        while(time < duration)
+        while (time < duration)
         {
-            Transposer.m_FollowOffset = Vector3.Lerp(start, end, time/duration);
+            Transposer.m_FollowOffset = Vector3.Lerp(start, end, time / duration);
             time += Time.deltaTime;
             yield return null;
         }
@@ -116,6 +108,6 @@ public class CameraController : MonoBehaviour
     void ResetFlags()
     {
         cam.m_Lens.FieldOfView = startFOV;
-        if(!gameObject.activeSelf) { gameObject.SetActive(true); }
+        if (!gameObject.activeSelf) { gameObject.SetActive(true); }
     }
 }

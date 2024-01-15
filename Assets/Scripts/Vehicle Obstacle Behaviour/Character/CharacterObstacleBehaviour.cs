@@ -20,7 +20,6 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     [SerializeField] Vector3 rayCastOffsetClimbableTop;
     [SerializeField] Vector3 rayCastOffsetClimbableBottom;
 
-
     //Flags
     private bool slowCheck;
     
@@ -29,15 +28,13 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     {
         if (hit.gameObject.CompareTag("Obstacle"))
         {
-            Debug.Log("Character Collided");
-/*            gameObject.SetActive(false);
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Lose);*/
+            
         }
 
         //Win Check
         if (hit.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+            TriggerWinState();
         }
     }
     private void Update()
@@ -52,28 +49,6 @@ public class CharacterObstacleBehaviour : MonoBehaviour
             StartCoroutine(TurnClimbingOff());
         }
         IsOnGround();
-        /*else
-        {
-            characterMovementScript.isClimbable = false;
-
-            if (IsOnGround() || CheckFront() || CheckBottomRight())
-            {
-                characterMovementScript.allowMove = true;
-            }
-            else
-            {
-                characterMovementScript.allowMove = false;
-            }
-
-            if (!IsOnGround())
-            {
-                characterMovementScript.isOnGround = false;
-            }
-            else
-            {
-                characterMovementScript.isOnGround = true;
-            }
-        }*/
     }
     #region Raycast Check For Stairs
     //Cast a ray to front of character to check for any stairs or Climbable surface
@@ -126,7 +101,10 @@ public class CharacterObstacleBehaviour : MonoBehaviour
                     slowCheck = true;
                     StartCoroutine(characterMovementScript.ResetSpeed());
                 }
-            }            
+            }
+
+            //Reset Y Velocity 
+            characterMovementScript.velocity.y = 0;
         }
     }
     #endregion
@@ -165,5 +143,18 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     {
         yield return new WaitForSeconds(0.25f);
         characterMovementScript.isClimbable = false;
+    }
+
+    void TriggerWinState()
+    {
+        if (transform.parent.name.Equals("TransformList"))
+        {
+            GameManager.Instance.winPosition++;
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
+        else
+        {
+            GameManager.Instance.winPosition++;
+        }
     }
 }

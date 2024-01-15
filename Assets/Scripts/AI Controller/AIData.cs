@@ -16,7 +16,7 @@ public class AIData : MonoBehaviour
     [SerializeField] VehicleProperties[] vehicleProperties;
 
     //List
-    List<string> activeVehicles = new List<string>();
+    public List<string> activeVehicles = new List<string>();
 
     //Variables
     int vehicleIndex;
@@ -39,12 +39,12 @@ public class AIData : MonoBehaviour
         if (state == GameManager.GameState.Play)
         {
 
-            Debug.Log("Fastest Vehicle In Level : " + fastestVehicleInCurrentLevel.name);
+            //Debug.Log("Fastest Vehicle In Level : " + fastestVehicleInCurrentLevel.name);
         }
 
         if (state == GameManager.GameState.SetupGameData || state == GameManager.GameState.Start)
         {
-            Debug.Log("Number of times this statement run : ");
+            //Debug.Log("Number of times this statement run : ");
             CurrentActiveVehicles();
             FindFastestVehicle();
         }

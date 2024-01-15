@@ -19,8 +19,8 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
 
     [Header("Gravity Settings")]
     //Gravity
-    private Vector3 velocity;
-    public float gravity = -10f;
+    public Vector3 velocity;
+    public float gravity = -5f;
 
     //Animator
     private Animator animator;
@@ -52,8 +52,7 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
             runOnce = false;
         }
         if (state == GameManager.GameState.Play)
-        {
-            
+        {         
             IncrementSpeed();
         }
     }
@@ -68,7 +67,6 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
 
     public void Movement()
     {
-
             if (isClimbable)
             {
                 characterController.Move(Vector3.up * (speed - climbingSpeed) * Time.deltaTime);
@@ -77,22 +75,13 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
             {
                 characterController.Move(Vector3.forward * speed * Time.deltaTime);
                 ApplyGravity();
-            }
-        
-        /*else
-        {
-            characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime);
-        }
-        if(!isOnGround && !isClimbable) { characterController.Move(Vector3.down * vehicleProperties.speed * Time.deltaTime); }*/
-
-        
+            }    
         AnimationController();
     }
 
     //5 % Increment with each level
     void IncrementSpeed()
-    {
-        
+    {    
         if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
         {
             speed = vehicleProperties.speed;
@@ -104,8 +93,7 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
     void AnimationController()
     {
         if(isClimbable)
-        {
-            
+        {           
             animator.SetBool("b_IsClimbing", true);
             animator.SetBool("b_IsRunning", false);
         }

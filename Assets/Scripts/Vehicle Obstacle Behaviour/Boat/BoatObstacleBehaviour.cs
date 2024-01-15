@@ -23,7 +23,7 @@ public class BoatObstacleBehaviour : MonoBehaviour
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
         {
-            GameManager.Instance.UpdateGameState(GameManager.GameState.Win);
+            TriggerWinState();
         }
     }
 
@@ -80,5 +80,17 @@ public class BoatObstacleBehaviour : MonoBehaviour
         }
         boatMovementScript.allowMove = false;
         boatMovementScript.hoverHeight = 1;
+    }
+    void TriggerWinState()
+    {
+        if (transform.parent.name.Equals("TransformList"))
+        {
+            GameManager.Instance.winPosition++;
+            GameManager.Instance.UpdateGameState(GameManager.GameState.Cash);
+        }
+        else
+        {
+            GameManager.Instance.winPosition++;
+        }
     }
 }

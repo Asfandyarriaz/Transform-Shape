@@ -62,10 +62,10 @@ public class VehicleUnlockProgress : MonoBehaviour
         int scooterLevelNeeded = 13; //After Further 3 Levels
 
 
-        Debug.Log("Inside Vehicle Unlock Progress");
+        /*Debug.Log("Inside Vehicle Unlock Progress");
         Debug.Log("Current Active Level : " + levelManagerScript.Int_GetCurrentActiveLevel());
         Debug.Log("Boat Level Needed : " + boatLevelNeeded);
-        Debug.Log("Is Current Level " + levelManagerScript.Int_GetCurrentActiveLevel() + " < " + 2);
+        Debug.Log("Is Current Level " + levelManagerScript.Int_GetCurrentActiveLevel() + " < " + 2);*/
         //Unlock Boat - Levels Needed 2 .   1,2,3 Number Notation 
         if (levelManagerScript.Int_GetCurrentActiveLevel() <= boatLevelNeeded && levelManagerScript.Int_GetCurrentActiveLevel() < 2)
         {

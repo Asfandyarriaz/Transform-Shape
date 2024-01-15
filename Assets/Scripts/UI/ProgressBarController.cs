@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using System.Threading.Tasks;
 /// <summary>
 /// Get AI Transform list from current active level
 /// Get Finish Line from
@@ -20,6 +22,8 @@ public class ProgressBarController : MonoBehaviour
 
     [Header("Level Manager")]
     [SerializeField] LevelManager levelManagerScript;
+    [Header("Movement Script")]
+    [SerializeField] MovementController movementControllerScript;
 
     private Transform ai1Position; // 1.AI's transform
     private Transform ai2Position; // 2.AI's transform
@@ -42,6 +46,9 @@ public class ProgressBarController : MonoBehaviour
     [SerializeField] Slider progressBarAI1; // Progress bar UI element
     [SerializeField] Slider progressBarAI2; // Progress bar UI element
     [SerializeField] Slider progressBarAI3; // Progress bar UI element
+
+    [Header("Current Level Text")]
+    [SerializeField] TMP_Text CurrentLevelText;
 
     //Variables
     //float distanceToFinish;
@@ -69,28 +76,33 @@ public class ProgressBarController : MonoBehaviour
 
 
         StartCoroutine(InitalSetup());
-        //Inital Setup
-        /*GetFinishLine();
-        SetPlayerActiveVehicle();
-        GetAITransformList();
-        SetAIActiveVehicle();*/
     }
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
         if (state == GameManager.GameState.Transform)
         {
-            SetPlayerActiveVehicle();
-            SetAIActiveVehicle();
+            SetPlayerActiveVehicle();        
+        }
+
+        if (state == GameManager.GameState.Play)
+        {
+            SetCurrentLevelText();
         }
     }
     void Update()
     {
         if (isSetupComplete)
         {
+            if(movementControllerScript.hasVehicleChanged)
+            {
+                SetPlayerActiveVehicle();
+            }
             UserProgress();
             AI1Progress();
             AI2Progress();
             AI3Progress();
+            SetAIActiveVehicle();
+            SetCurrentLevelText();
         }
     }
 
@@ -213,9 +225,6 @@ public class ProgressBarController : MonoBehaviour
             }
         }
 
-
-
-
         for (int i = 0; i < aiObj.transform.childCount; i++)
         {
             if (aiObj.transform.GetChild(i).gameObject.name == "AI_1")
@@ -251,7 +260,7 @@ public class ProgressBarController : MonoBehaviour
         }
     }
 
-     IEnumerator InitalSetup()
+    IEnumerator InitalSetup()
     {
         yield return null;
         GetFinishLine();
@@ -265,5 +274,11 @@ public class ProgressBarController : MonoBehaviour
     private void OnDisable()
     {
         isSetupComplete = false;
+    }
+
+    void SetCurrentLevelText()
+    {
+        //Debug.Log("Current Level : " + levelManagerScript.Int_GetCurrentActiveLevel());
+        CurrentLevelText.text = "Level " + (levelManagerScript.Int_GetCurrentActiveLevel() + 1);
     }
 }

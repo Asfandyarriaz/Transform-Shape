@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class ButtonController : MonoBehaviour
 {
     [SerializeField] ParticleManager particleManagerScript;
+    [SerializeField] LevelManager levelManagerScript;
     MovementController movementControllerScript;
 
     [Header("Buttons")]
@@ -19,8 +20,15 @@ public class ButtonController : MonoBehaviour
     [SerializeField] Sprite currentSelectedImage;
     [SerializeField] Sprite deselectedImage;
 
-    [Header("Variables")]
+    [Header("Vehicle Selector")]
+    [SerializeField] RectTransform vehicleSelectorObject;
+    [SerializeField] float twoButtonsWidth;   //Width = 300, Height = 200
+    [SerializeField] float threeButtonsWidth; //Width = 410, Height = 200
+    [SerializeField] float fourButtonsWidth;  //Width = 500, Height = 200
+
+
     //Variables 
+    [Header("Variables")]
     Quaternion resetRotation = Quaternion.Euler(0, 0, 0);
     [SerializeField] private float airplaneYOffset = 0.1f;
     [SerializeField] private float yOffset = 0.1f;
@@ -40,7 +48,13 @@ public class ButtonController : MonoBehaviour
     {
         if (state == GameManager.GameState.Start)
         {
+            SetAllImagesToDefault();   
+        }
+
+        if(state == GameManager.GameState.SetupGameData)
+        {
             SetCurrentActiveVehicleSpriteImage();
+            SetTransformRectForVehicleSelector();
         }
     }
 
@@ -53,7 +67,8 @@ public class ButtonController : MonoBehaviour
     public void OnClickTransformCharacterWalk()
     {
         ChangeToObject("Character Walk", DisableCurrentActive()); //Set name same as object under TransformList object in hierarchy
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        movementControllerScript.hasVehicleChanged = true;
+        //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
@@ -63,7 +78,8 @@ public class ButtonController : MonoBehaviour
     public void OnClickTransformCar()
     {
         ChangeToObject("Car", DisableCurrentActive());
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        movementControllerScript.hasVehicleChanged = true;
+        //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
@@ -72,7 +88,8 @@ public class ButtonController : MonoBehaviour
     public void OnClickTransformTank()
     {
         ChangeToObject("Tank", DisableCurrentActive());
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        movementControllerScript.hasVehicleChanged = true;
+        //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
@@ -81,7 +98,8 @@ public class ButtonController : MonoBehaviour
     public void OnClickTransformScooter()
     {
         ChangeToObject("Scooter", DisableCurrentActive());
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        movementControllerScript.hasVehicleChanged = true;
+        //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
@@ -90,7 +108,8 @@ public class ButtonController : MonoBehaviour
     public void OnClickTransformBoat()
     {
         ChangeToObject("Boat", DisableCurrentActive());
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        movementControllerScript.hasVehicleChanged = true;
+        //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
@@ -100,7 +119,8 @@ public class ButtonController : MonoBehaviour
     {
         ChangeToObject("Airplane", DisableCurrentActive());
         ChangeToObject("Airplane", DisableCurrentActive(), "Ref Override");
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        movementControllerScript.hasVehicleChanged = true;
+        //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
@@ -109,11 +129,12 @@ public class ButtonController : MonoBehaviour
         //Manually set the y position higher to avoid plane clipping into ground
         Vector3 position = movementControllerScript.tranformObjectsArr[5].transform.position;
         position = new Vector3(position.x, position.y + 10f, position.z);
-    } 
+    }
     public void OnClickTransformGlider()
     {
         ChangeToObject("Glider", DisableCurrentActive());
-        GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
+        movementControllerScript.hasVehicleChanged = true;
+        //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
         //Play Audio
         AudioManager.Instance.PlaySFX(AudioManager.Instance.onButtonClick);
 
@@ -148,6 +169,9 @@ public class ButtonController : MonoBehaviour
 
                 //Set Particle as child and play
                 StartCoroutine(particleManagerScript.PlayTransformParticle(movementControllerScript.tranformObjectsArr[i].transform, particleManagerScript.transformParticlePlayer));
+
+                //Set Player Marker
+                //particleManagerScript.FollowPlayerMarker(movementControllerScript.tranformObjectsArr[i].transform);
                 break;
             }
         }
@@ -191,6 +215,15 @@ public class ButtonController : MonoBehaviour
         }
     }
 
+    void SetAllImagesToDefault()
+    {
+        for (int i = 0; i < buttonArray.Length; i++)
+        {
+            buttonArray[i].sprite = deselectedImage;
+            buttonArray[i].gameObject.transform.localScale = new Vector3(1, 1, 1);
+        }
+    }
+
     void SetCurrentActiveVehicleSpriteImage()
     {
         for (int i = 0; i < movementControllerScript.tranformObjectsArr.Length; i++)
@@ -199,7 +232,7 @@ public class ButtonController : MonoBehaviour
             {
                 buttonArray[i].sprite = currentSelectedImage;
                 buttonArray[i].gameObject.transform.localScale = selectedScale;
-                
+
             }
             else
             {
@@ -207,5 +240,34 @@ public class ButtonController : MonoBehaviour
                 buttonArray[i].gameObject.transform.localScale = new Vector3(1, 1, 1);
             }
         }
+    }
+
+    void SetTransformRectForVehicleSelector()
+    {
+        int activeButtons = 0;
+        Vector2 sizeDelta = vehicleSelectorObject.sizeDelta;
+
+        activeButtons = levelManagerScript.levelProperties[levelManagerScript.Int_GetCurrentActiveLevel()].numberOfShapes;
+
+        if (activeButtons == 2)
+        {
+            sizeDelta.x = twoButtonsWidth;
+        }
+        else if(activeButtons == 3)
+        {
+            sizeDelta.x = threeButtonsWidth;
+        }
+        else if(activeButtons == 4)
+        {
+            sizeDelta.x = fourButtonsWidth;
+        }
+
+        vehicleSelectorObject.sizeDelta = sizeDelta;
+        Debug.Log("Active Buttons : " + activeButtons);
+    }
+
+    void FollowPlayerMarker()
+    {
+
     }
 }

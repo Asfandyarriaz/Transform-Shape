@@ -4,6 +4,7 @@ public class MovementController : MonoBehaviour
 {
     [SerializeField] public GameObject[] tranformObjectsArr;
     [SerializeField] public Transform startingPosition;
+    [SerializeField] LevelManager levelManagerScript;
 
     //Variables
     int vehicleIndex;
@@ -11,7 +12,7 @@ public class MovementController : MonoBehaviour
 
     [Header("Flags")]
     //Flags
-    [SerializeField] private bool hasCheckOnStateChange;
+    [SerializeField] public bool hasVehicleChanged;
     [SerializeField] private bool updateAllowed;
 
     #region State Handling
@@ -48,7 +49,9 @@ public class MovementController : MonoBehaviour
 
         if (state == GameManager.GameState.Start)
         {
+            UserStartPoint();
             SetVehiclePosition();
+            SetDefaultVehicle();
         }
     }
     #endregion
@@ -61,7 +64,7 @@ public class MovementController : MonoBehaviour
     {
         if (updateAllowed)
         {
-            if (hasCheckOnStateChange) { CheckVehicleAndGetComponent(); }
+            if (hasVehicleChanged) { CheckVehicleAndGetComponent(); }
             movementBehaviorSriptAttachedObject.Movement();
         }
     }
@@ -70,7 +73,7 @@ public class MovementController : MonoBehaviour
     {
         vehicleIndex = CheckActiveVehicle();
         movementBehaviorSriptAttachedObject = tranformObjectsArr[vehicleIndex].gameObject.GetComponent<IInterfaceMovement>();
-        hasCheckOnStateChange = false;
+        hasVehicleChanged = false;
     }
     int CheckActiveVehicle()
     {
@@ -94,9 +97,20 @@ public class MovementController : MonoBehaviour
 
         return tranformObjectsArr[0].gameObject; //Return 0 by default
     }
+
+    void SetDefaultVehicle()
+    {
+        for (int i = 0; i < tranformObjectsArr.Length; i++)
+        {
+            if (tranformObjectsArr[i].gameObject.activeSelf)
+            { tranformObjectsArr[i].gameObject.SetActive(false); }
+        }
+        //Set Default Vehicle
+        if (!tranformObjectsArr[0].gameObject.activeSelf) { tranformObjectsArr[0].gameObject.SetActive(true); }
+    }
     private void ResetFlags()
     {
-        hasCheckOnStateChange = true;
+        hasVehicleChanged = true;
     }
     void SetVehiclePosition()
     {
@@ -108,6 +122,19 @@ public class MovementController : MonoBehaviour
     public void OnClickChangeState()
     {
         GameManager.Instance.UpdateGameState(GameManager.GameState.Start);
+    }
+
+    void UserStartPoint()
+    {
+        GameObject currentLevel = levelManagerScript.GetCurrentActiveLevels(PlayerDataController.Instance.playerData.currentLevel);
+
+        for(int i = 0; i < currentLevel.transform.childCount; i++)
+        {
+            if(currentLevel.transform.GetChild(i).gameObject.name.Equals("User Start Point"))
+            {
+                startingPosition = currentLevel.transform.GetChild(i).transform;
+            }
+        }
     }
     #endregion
 }

@@ -30,11 +30,11 @@ public class AudioManager : MonoBehaviour
     //TODO: Get current level from save system
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-        if(state == GameManager.GameState.Lose)
+        if (state == GameManager.GameState.Lose)
         {
             PlayMusic(lose);
         }
-        if(state == GameManager.GameState.Win)
+        if (state == GameManager.GameState.Win)
         {
 
         }
@@ -42,6 +42,9 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
+        MuteMusic(!PlayerDataController.Instance.playerData.isMusicAllow);
+        MuteSound(!PlayerDataController.Instance.playerData.isSoundAllow);
+
         musicSource.clip = background;
         musicSource.Play();
     }
@@ -55,5 +58,20 @@ public class AudioManager : MonoBehaviour
     {
         musicSource.clip = clip;
         musicSource.Play();
+    }
+
+    public void MuteMusic(bool mute)
+    {
+        if (mute)
+            musicSource.mute = true;
+        else
+            musicSource.mute = false;
+    }
+    public void MuteSound(bool mute)
+    {
+        if (mute)
+            sfxSource.mute = true;
+        else
+            sfxSource.mute = false;
     }
 }

@@ -125,7 +125,7 @@ public class CarMovement : MonoBehaviour, IInterfaceMovement
     }
 
     //Reduce speed by 4 times
-    public IEnumerator SlowSpeedInWater()
+    public IEnumerator SlowSpeedInDifferentTerrain()
     {
         float time = 0;
         float velocity = 0;

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ParticleManager : MonoBehaviour
@@ -13,6 +12,10 @@ public class ParticleManager : MonoBehaviour
     [Header("Win Particles")]
     [SerializeField] public GameObject confettiParticles1;
     [SerializeField] public GameObject confettiParticles2;
+
+/*  [Header("Player Marker")]
+    [SerializeField] GameObject playerMarker;
+    [SerializeField] TMP_Text playerName;*/
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -25,7 +28,20 @@ public class ParticleManager : MonoBehaviour
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
         if (state == GameManager.GameState.Transform) { }
-            //Play Particles
+        //Play Particles
+
+        if (state == GameManager.GameState.Start)
+        {
+            /*if (PlayerDataController.Instance.playerData.playerName != null)
+            {
+                playerName.text = PlayerDataController.Instance.playerData.playerName;
+            }
+            else
+            {
+                playerName.text = "YOU";
+            }*/
+        }
+
     }
 
     public IEnumerator PlayTransformParticle(Transform vehicle, GameObject particle)
@@ -45,4 +61,11 @@ public class ParticleManager : MonoBehaviour
         }
         particle.SetActive(false);
     }
+
+    /*public void FollowPlayerMarker(Transform Parent)
+    {
+        playerMarker.transform.SetParent(Parent);
+        playerMarker.transform.localPosition = new Vector3(0, 2, 0.042f);
+        playerMarker.transform.rotation = Quaternion.Euler(0, -30.747f, 0);
+    }*/
 }

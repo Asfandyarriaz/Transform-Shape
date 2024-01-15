@@ -27,6 +27,10 @@ public class CashWinPanel : MonoBehaviour
         GameManager.OnGameStateChanged -= GameManagerOnGameStateChanged;
     }
 
+    private void Start()
+    {
+        levelCompletedImage.transform.localScale = new Vector3(0, 0, 0);
+    }
     //TODO: Get current level from save system
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {

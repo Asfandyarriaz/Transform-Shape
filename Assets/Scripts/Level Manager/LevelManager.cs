@@ -9,7 +9,7 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] GameObject[] levels;
-    [SerializeField] LevelProperties[] levelProperties;
+    [SerializeField] public LevelProperties[] levelProperties;
     [SerializeField] GameObject[] transformButtons;
     private void Awake()
     {
@@ -24,7 +24,7 @@ public class LevelManager : MonoBehaviour
     //TODO: Get current level from save system
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-        if (state == GameManager.GameState.Start)
+        if (/*state == GameManager.GameState.PreStart ||*/ state == GameManager.GameState.Start)
         {
             Debug.Log("Current Level : " + PlayerDataController.Instance.playerData.currentLevel);
             SetCurrentLevelActive(PlayerDataController.Instance.playerData.currentLevel);
@@ -47,7 +47,6 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < levels.Length; i++)
         {
             levels[i].SetActive(false);
-
         }
 
         for (int i = 0; i < levels.Length; i++)
@@ -71,6 +70,10 @@ public class LevelManager : MonoBehaviour
             }
         }
         return null;
+    }
+    public GameObject GetCurrentActiveLevels(int index)
+    {
+        return levels[index];
     }
     public int Int_GetCurrentActiveLevel()
     {
