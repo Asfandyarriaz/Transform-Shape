@@ -6,24 +6,17 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
 {
     [SerializeField] VehicleProperties vehicleProperties;
 
-    [Header("Set above the ground")]
-    [SerializeField] float yOffset;
+    [Header("Airplane Setting")]
+    public float forwardSpeed = 10f;
+    public float heightAdjustmentSpeed = 5f;
+    public float raycastDistance = 5f;
+    public LayerMask groundLayer;
+    public float heightOffset = 0.1f;
 
-    [Header("Speed Increment")]
-    [SerializeField] private float incrementSpeedPercentage = 5f;
 
-    [Header("Airplane Movement Setting")]
-    [SerializeField] private float hoverHeight = 2f;      // Desired height above the ground
-    [SerializeField] private float forwardSpeed = 2f; 
-    [SerializeField] private float maxFloatHeightFactor = 2f; // Factor to adjust maxFloatHeight dynamically
-    [SerializeField] private float floatSpeed = 2f;       // Speed of ascending and descending
-    [SerializeField] private float wallDetectionDistance = 3f; // Distance to detect walls in front
-    [SerializeField] Vector3 raycastOffset;
-    private Rigidbody rb;
-
+    Rigidbody rb;
     //Flags
-    private bool runOnce = false;
-    private bool moveForward = true;
+    public bool allowMove = true;
     private void Awake()
     {
         GameManager.OnGameStateChanged += GameManagerOnGameStateChanged;
@@ -36,11 +29,11 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-            runOnce = false;
+
         }
         if (state == GameManager.GameState.Play)
-        {    
-            IncrementSpeed();
+        {
+            //IncrementSpeed();
         }
     }
     private void Start()
@@ -51,8 +44,9 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
     {
         StayAboveGround();
     }
+
     //5 % Increment with each level
-    void IncrementSpeed()
+    /*void IncrementSpeed()
     {       
         if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
         {
@@ -61,63 +55,41 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
             forwardSpeed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
             runOnce = true;
         }
-    }
+    }*/
+
+    //TODO: Hardcoded Values Fix
     void StayAboveGround()
-    {
-        // Cast a ray downward from the object's position
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity))
-        {
-            // Calculate the target height above the ground
-            float targetHeight = hit.point.y + hoverHeight;
-
-            // Calculate the maximum allowed height dynamically based on the ground beneath
-            float maxFloatHeight = hit.point.y + hoverHeight * maxFloatHeightFactor;
-
-            // Gradually bring the object down if it exceeds the dynamically calculated maximum allowed height
-            if (targetHeight > maxFloatHeight)
-            {
-                targetHeight = Mathf.Lerp(transform.position.y, maxFloatHeight, Time.deltaTime * floatSpeed);
-            }
-
-            // Check for a wall in front
-            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit wallHit, wallDetectionDistance))
-            {
-                Debug.DrawRay(transform.position, Vector3.forward * wallDetectionDistance, Color.black);
-                if (!wallHit.collider.CompareTag("Win"))
-                {
-                    moveForward = false;
-
-                    // If a wall is detected, limit the forward movement until the object is above the wall
-                    float wallHeight = wallHit.point.y + hoverHeight;
-
-                    // Only move forward if the object is above the height of the wall
-                    if (transform.position.y >= wallHeight)
-                    {
-                        transform.Translate(Vector3.forward * forwardSpeed * Time.deltaTime);
-                    }
-
-                    // Gradually ascend the object to the height of the wall
-                    targetHeight = Mathf.Max(targetHeight, wallHeight);
-
-                    StartCoroutine(KeepMovingUp());
-                }
-            }
-
-            // Gradually ascend or descend the object to the target height
-            float newY = Mathf.Lerp(transform.position.y, targetHeight, Time.deltaTime * floatSpeed);
-            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
-
-            if (moveForward)
-            {
-                //Move Forward
-                transform.Translate(Vector3.forward * forwardSpeed * Time.deltaTime);
-            }
-        }
-    }
-    IEnumerator KeepMovingUp()
     {       
-        //float newY = Mathf.Lerp(transform.position.y, transform.position.y + 50f, Time.deltaTime * floatSpeed);
-        yield return new WaitForSeconds(1.5f);
-        moveForward = true;
-    }
+        if (allowMove)
+        {
+            forwardSpeed = Mathf.Lerp(forwardSpeed, 12, 1 * Time.fixedDeltaTime);
+            Vector3 forwardVelocity = transform.forward * forwardSpeed;
+            rb.velocity = forwardVelocity;
+            Debug.Log("Forward Speed : " + forwardSpeed);
+        }
+        else
+        {
+            rb.velocity = Vector3.zero;
+            forwardSpeed = 0;
+        }
+
+        // Raycast to detect the ground below
+        Ray ray = new Ray(transform.position, Vector3.down);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, raycastDistance, groundLayer))
+        {
+            Debug.DrawRay(transform.position, Vector3.down * raycastDistance, Color.green);
+            // Adjust the height of the airplane with an offset
+            float targetHeight = hit.point.y + heightOffset;
+
+            float currentHeight = transform.position.y;
+            float newHeight = Mathf.Lerp(currentHeight, targetHeight, heightAdjustmentSpeed * Time.fixedDeltaTime);
+
+            // Set the new height
+            Vector3 newPosition = new Vector3(transform.position.x, newHeight, transform.position.z);
+            rb.MovePosition(newPosition);
+        }
+    }   
 }
+

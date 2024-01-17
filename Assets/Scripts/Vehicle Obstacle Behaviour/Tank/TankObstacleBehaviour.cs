@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class TankObstaclebehaviour : MonoBehaviour
+public class TankObstacleBehaviour : MonoBehaviour
 {
     [SerializeField] TankMovement tankMovementScript;
 
@@ -15,6 +15,10 @@ public class TankObstaclebehaviour : MonoBehaviour
     //[SerializeField] float rayCastLengthDown;
     [SerializeField] Vector3 rayCastOffsetDown;
     [SerializeField] float rayCastDownLength;
+
+    [Header("Gravity Raycast Setting")]
+    [SerializeField] Vector3 gravityRaycastOffsetDown;
+    [SerializeField] float gravityRaycastLength;
     [SerializeField] LayerMask groundLayer;
 
 
@@ -22,6 +26,7 @@ public class TankObstaclebehaviour : MonoBehaviour
     public bool slowCheck;
     public bool startCoroutine = true;
     private bool startCoroutineRotate = true;
+    private bool stopWinCounter = false;
 
     //Varaibles
     private float stopRotateSeconds = 2f;
@@ -33,25 +38,8 @@ public class TankObstaclebehaviour : MonoBehaviour
     {
         if (hit.gameObject.CompareTag("Obstacle"))
         {
-            hit.gameObject.SetActive(false);
+            hit.collider.gameObject.SetActive(false);
         }
-        if (hit.gameObject.CompareTag("Not Passable"))
-        {
-            //Stop Car Logic
-        }
-        if (hit.gameObject.CompareTag("Stairs"))
-        {
-            tankMovementScript.allowMove = false;
-        }
-        if (hit.gameObject.CompareTag("Water"))
-        {
-            tankMovementScript.allowMove = false;
-        }
-        else
-        {
-            tankMovementScript.allowMove = true;
-        }
-
         //Win Check
         if (hit.gameObject.CompareTag("Win"))
         {
@@ -60,16 +48,19 @@ public class TankObstaclebehaviour : MonoBehaviour
     }
     private void Update()
     {
-        if (RaycastFront() || RaycastDown() || RaycastDownCheckForStairs())
+        if (RaycastFront() || RaycastDownCheckForStairs())
         {
+            //Debug.Log("Allow Move False In Condition");
             tankMovementScript.allowMove = false;
         }
-        else if (!RaycastFront() && !RaycastDown())
+        else if (!RaycastFront() && !RaycastDownCheckForStairs())
         {
+            //Debug.Log("Allow Move True In Condition");
             tankMovementScript.allowMove = true;
         }
 
-        RaycastDownCheckForStairs();
+        RaycastForSlowCheck();
+        RaycastGravity();
     }
     #region Raycast Check For Stairs
     //Cast a ray to front of character to check for any stairs or Climbable surface
@@ -78,7 +69,7 @@ public class TankObstaclebehaviour : MonoBehaviour
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetFront;
 
-        Debug.DrawRay(origin, Vector3.forward * rayCastLengthFront, Color.red);
+        //Debug.DrawRay(origin, Vector3.forward * rayCastLengthFront, Color.red);
         if (Physics.Raycast(origin, Vector3.forward, out hit, rayCastLengthFront))
         {
             if (hit.collider.CompareTag("Stairs"))
@@ -98,6 +89,11 @@ public class TankObstaclebehaviour : MonoBehaviour
             }
             if (hit.collider.CompareTag("Climbable"))
             {
+                tankMovementScript.allowMove = false;               
+                return true;
+            }
+            if (hit.collider.CompareTag("Fly"))
+            {
                 tankMovementScript.allowMove = false;
                 return true;
             }
@@ -105,31 +101,39 @@ public class TankObstaclebehaviour : MonoBehaviour
         return false;
     }
 
-    bool RaycastDown()
+    bool RaycastForSlowCheck()
     {
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetDown;
 
-        Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.black);
-        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
+        //Debug.DrawRay(origin, Vector3.down * (rayCastDownLength + 2), Color.black);
+        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength + 2))
         {
             if (hit.collider.CompareTag("Water"))
             {
                 if (slowCheck)
                 {
-                    StartCoroutine(tankMovementScript.SlowSpeedInWater());
                     slowCheck = false;
+                    StartCoroutine(tankMovementScript.SlowSpeedInDifferentTerrain());
+                }
+            }
+            else if (hit.collider.CompareTag("Biketrail"))
+            {
+                if (slowCheck)
+                {
+                    slowCheck = false;
+                    StartCoroutine(tankMovementScript.SlowSpeedInDifferentTerrain());
                 }
             }
             else
             {
                 if (slowCheck == false)
                 {
-                    StartCoroutine(tankMovementScript.ResetSpeed());
                     slowCheck = true;
+                    StartCoroutine(tankMovementScript.ResetSpeed());
                 }
             }
-            tankMovementScript.velocity.y = 0;
+            
         }
 
         return false;
@@ -139,15 +143,29 @@ public class TankObstaclebehaviour : MonoBehaviour
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetDown;
 
-        Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.green);
-        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength, groundLayer))
+        //Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.green);
+        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
         {
+            //Debug.Log("Raycast Down For Stairs : " + hit.collider.gameObject.name);
             if (hit.collider.CompareTag("Stairs"))
             {
                 return true;
             }
         }
+        
         return false;
+    }
+
+    //Apply a raycast with a small length to check for grounded if detected reset gravity
+    void RaycastGravity()
+    {
+        RaycastHit hit;
+        Vector3 origin = transform.position + gravityRaycastOffsetDown;
+        Debug.DrawRay(origin, Vector3.down * gravityRaycastLength, Color.white);
+        if (Physics.Raycast(origin, Vector3.down, out hit, gravityRaycastLength, groundLayer))
+        {
+            tankMovementScript.velocity.y = 0;
+        }
     }
 
     void TriggerWinState()
@@ -159,7 +177,8 @@ public class TankObstaclebehaviour : MonoBehaviour
         }
         else
         {
-            GameManager.Instance.winPosition++;
+            if (stopWinCounter != true) { GameManager.Instance.winPosition++; }
+            stopWinCounter = true;
         }
     }
     IEnumerator TurnOffRotate()

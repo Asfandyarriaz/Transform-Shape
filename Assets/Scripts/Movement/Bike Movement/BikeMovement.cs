@@ -4,9 +4,29 @@ using UnityEngine;
 
 public class BikeMovement : MonoBehaviour, IInterfaceMovement
 {
+    [SerializeField] VehicleProperties vehicleProperties;
+    CharacterController bikeCharacterController;
+    public bool allowMove = true;
+
     [Header("Speed")]
-    public float targetVelocity = 12f;  // Adjust the desired velocity
-    public float forceMultiplier = 1f;  // Adjust the force multiplier
+    [SerializeField] private float speed;
+    [SerializeField] private float climbingSpeed;
+
+    [Header("Speed Increment")]
+    [SerializeField] private float incrementSpeedPercentage = 5f;
+
+    [Header("Gravity Settings")]
+    //Gravity
+    public Vector3 velocity;
+    public float gravity = -5f;
+
+    //Variables
+    private float tempForceMultiplier;
+    private float tempSpeed;
+
+    private int slowSpeed = 4;
+    private float slowDuration = 0.5f;
+    private float resetDuration = 1.5f;
 
     [Header("Slope Rotation")]
     public float rotationSpeed = 45f;  // Adjust the rotation speed as needed
@@ -15,29 +35,14 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     public Vector3 offset;
     public float rayCastLength;
 
-
-    [Header("Grounded")]
-    public float rayCastGroundLength;
-    Rigidbody rb;
-
-    [Header("Air")]
-    public float flySpeed;
+    [Header("Bike Object")]
+    [SerializeField] GameObject bikeObject;
 
     //Flags
     [Header("Flags")]
-    public bool allowMove;
     public bool allowRotate = true;
+    private bool runOnce = false;
 
-    [Header("Other Settings")]
-    [SerializeField] VehicleProperties vehicleProperties;
-
-    //Variables
-    private float tempForceMultiplier;
-    private float tempTargertVelocity;
-
-    private int slowSpeed = 4;
-    private float slowDuration = 0.5f;
-    private float resetDuration = 1.5f;
 
     private void Awake()
     {
@@ -52,47 +57,77 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
     {
         if (state == GameManager.GameState.Start)
         {
-
+            runOnce = false;
         }
         if (state == GameManager.GameState.Play)
         {
-            
+            //IncrementSpeed();
         }
     }
 
-    private void Start()
+    void Start()
     {
-        rb = GetComponent<Rigidbody>();
-
-        tempForceMultiplier = forceMultiplier;
-        tempTargertVelocity = targetVelocity;
+        bikeCharacterController = GetComponent<CharacterController>();
+        speed = vehicleProperties.speed;
+        tempSpeed = speed;
     }
+
     public void Movement()
     {
         if (allowMove)
         {
-            MoveForward();
-            if (allowRotate)
-                RotateToSlope();
+            bikeCharacterController.Move(Vector3.forward * speed * Time.deltaTime);
+        }
+
+        if (allowRotate && allowMove)
+            RotateToSlope();
+
+        ApplyGravity();
+    }
+
+    //5 % Increment with each level
+    void IncrementSpeed()
+    {
+        if (vehicleProperties.currentUpgradeLevel >= 1 && runOnce != true)
+        {
+            speed = vehicleProperties.speed;
+            incrementSpeedPercentage = incrementSpeedPercentage * vehicleProperties.currentUpgradeLevel - 1;
+            speed += Mathf.RoundToInt(vehicleProperties.speed * (incrementSpeedPercentage / 100));
+            runOnce = true;
         }
     }
-    void MoveForward()
-    {
-        if (IsGrounded())
-        {
-            forceMultiplier = tempForceMultiplier;
-            float acceleration = (targetVelocity - rb.velocity.magnitude) / Time.fixedDeltaTime;
-            // Calculate force needed
-            float force = rb.mass * acceleration;
 
-            // Add force in the forward direction
-            rb.AddForce(transform.forward * forceMultiplier * force);
-        }
-        else
+
+    //Reduce speed by 4 times
+    public IEnumerator SlowSpeedInDifferentTerrain()
+    {
+        float time = 0;
+        float velocity = 0;
+        while (time < slowDuration)
         {
-            forceMultiplier = 0;
-            rb.AddForce(Vector3.forward * flySpeed);
+            velocity = Mathf.Lerp(tempSpeed, slowSpeed, time / slowDuration);
+            speed = velocity;
+            time += Time.deltaTime;
+            yield return null;
         }
+    }
+    public IEnumerator ResetSpeed()
+    {
+        float time = 0;
+        float velocity = 0;
+        while (time < resetDuration)
+        {
+            velocity = Mathf.Lerp(speed, tempSpeed, time / resetDuration);
+            speed = velocity;
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    void ApplyGravity()
+    {
+        velocity.y += gravity * Time.deltaTime;
+        bikeCharacterController.Move(velocity * Time.deltaTime);
     }
 
     void RotateToSlope()
@@ -108,48 +143,12 @@ public class BikeMovement : MonoBehaviour, IInterfaceMovement
                 Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
 
                 // Rotate the object smoothly
-                transform.rotation = Quaternion.Slerp(transform.rotation, slopeRotation, rotationSpeed * Time.deltaTime);
+                bikeObject.transform.rotation = Quaternion.Slerp(bikeObject.transform.rotation, slopeRotation, rotationSpeed * Time.deltaTime);
+            }
+            else
+            {
+                bikeObject.transform.rotation = Quaternion.Slerp(bikeObject.transform.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
             }
         }
-    }
-
-    public bool IsGrounded()
-    {
-        if (Physics.Raycast(transform.position, Vector3.down, rayCastGroundLength))
-        {
-            Debug.DrawRay(transform.position, Vector3.down * rayCastGroundLength, Color.red);
-            return true;
-        }
-        return false;
-    }
-
-    //Reduce speed by 4 times
-    public IEnumerator SlowSpeedInDifferentTerrain()
-    {
-        float time = 0;
-        float velocity = 0;
-        while (time < slowDuration)
-        {
-            velocity = Mathf.Lerp(targetVelocity, slowSpeed, time / slowDuration);
-            targetVelocity = velocity;
-            time += Time.deltaTime;
-            yield return null;
-        }
-    }
-    public IEnumerator ResetSpeed()
-    {
-        float time = 0;
-        float velocity = 0;
-        while (time < resetDuration)
-        {
-            velocity = Mathf.Lerp(targetVelocity, tempTargertVelocity, time / resetDuration);
-            targetVelocity = velocity;
-            time += Time.deltaTime;
-            yield return null;
-        }
-    }
-    public void StopCar()
-    {
-        rb.velocity = new Vector3(0, 0, 0);
     }
 }

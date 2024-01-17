@@ -21,6 +21,7 @@ public class NewCarObstacleBehavior : MonoBehaviour
     public bool slowCheck;
     public bool startCoroutine = true;
     private bool startCoroutineRotate = true;
+    private bool stopWinCounter = false;
 
     //Varaibles
     private float stopRotateSeconds = 2f;
@@ -29,42 +30,29 @@ public class NewCarObstacleBehavior : MonoBehaviour
 
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (hit.gameObject.CompareTag("Obstacle"))
-        {
-            //Stop Car Logic
-        }
-        if (hit.gameObject.CompareTag("Not Passable"))
-        {
-            //Stop Car Logic
-        }
-        if (hit.gameObject.CompareTag("Water"))
-        {
-            carMovementScript.allowMove = false;
-        }
-        else
-        {
-            carMovementScript.allowMove = true;
-        }
-
+    {     
         //Win Check
         if (hit.gameObject.CompareTag("Win"))
         {
             TriggerWinState();
         }
     }
+    private void Start()
+    {
+        slowCheck = true;
+    }
     private void Update()
     {
-        if (RaycastFront() || RaycastDown() || RaycastDownCheckForStairs())
+        if ( (RaycastFront() || RaycastDownCheckForStairs()))
         {
             carMovementScript.allowMove = false;
         }
-        else if (!RaycastFront() && !RaycastDown())
+        else if (!RaycastFront() && !RaycastDownCheckForStairs())
         {
             carMovementScript.allowMove = true;
         }
 
-        RaycastDownCheckForStairs();
+        RaycastForSlowCheck();
     }
     #region Raycast Check For Stairs
     //Cast a ray to front of character to check for any stairs or Climbable surface
@@ -96,35 +84,48 @@ public class NewCarObstacleBehavior : MonoBehaviour
                 carMovementScript.allowMove = false;
                 return true;
             }
+            if (hit.collider.CompareTag("Fly"))
+            {
+                carMovementScript.allowMove = false;
+                return true;
+            }
         }
         return false;
     }
 
-    bool RaycastDown()
+    bool RaycastForSlowCheck()
     {
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetDown;
 
-        Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.black);
-        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
+        Debug.DrawRay(origin, Vector3.down * (rayCastDownLength + 2), Color.black);
+        if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength + 2))
         {
             if (hit.collider.CompareTag("Water"))
             {
+                
                 if (slowCheck)
                 {
-                    StartCoroutine(carMovementScript.SlowSpeedInWater());
                     slowCheck = false;
+                    StartCoroutine(carMovementScript.SlowSpeedInDifferentTerrain());
+                }
+            }
+            else if (hit.collider.CompareTag("Biketrail"))
+            {
+                if (slowCheck)
+                {
+                    slowCheck = false;
+                    StartCoroutine(carMovementScript.SlowSpeedInDifferentTerrain());
                 }
             }
             else
             {
                 if (slowCheck == false)
                 {
-                    StartCoroutine(carMovementScript.ResetSpeed());
                     slowCheck = true;
+                    StartCoroutine(carMovementScript.ResetSpeed());
                 }
-            }
-            carMovementScript.velocity.y = 0;
+            }          
         }
 
         return false;
@@ -137,10 +138,12 @@ public class NewCarObstacleBehavior : MonoBehaviour
         Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.green);
         if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
         {
+            carMovementScript.velocity.y = 0;
+
             if (hit.collider.CompareTag("Stairs"))
             {
                 return true;
-            }
+            }   
         }
         return false;
     }
@@ -154,7 +157,8 @@ public class NewCarObstacleBehavior : MonoBehaviour
         }
         else
         {
-            GameManager.Instance.winPosition++;
+            if (stopWinCounter != true) { GameManager.Instance.winPosition++; }
+            stopWinCounter = true;
         }
     }
     IEnumerator TurnOffRotate()

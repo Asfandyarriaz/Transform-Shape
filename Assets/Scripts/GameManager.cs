@@ -50,9 +50,9 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void Update()
+    private async void Update()
     {
-
+        await Task.Delay(1);
     }
     /*private void HandlePreStartState()
     {
@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
         await Task.Delay(1);
         UpdateGameState(GameState.Play);
     }
-    private void HandlePlayState()
+    private  void HandlePlayState()
     {
 
     }
@@ -153,6 +153,12 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning("Not Enough Cash");
         }
+    }
+
+    public void OnClickWin()
+    {
+        winPosition++;
+        UpdateGameState(GameState.Cash);
     }
     #endregion
 }

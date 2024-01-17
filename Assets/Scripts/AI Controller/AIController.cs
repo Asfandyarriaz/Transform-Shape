@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class AIController : MonoBehaviour
@@ -38,10 +39,13 @@ public class AIController : MonoBehaviour
             ResetFlags();
         }
 
-        if (state == GameManager.GameState.SetupGameData || state == GameManager.GameState.Start)
+        if (state == GameManager.GameState.SetupGameData || state == GameManager.GameState.Start || state == GameManager.GameState.Play)
         {
-            SetInitialVehicleIfAllInactive();
             SetVehiclePosition();
+            SetInitialVehicleIfAllInactive();
+            //StartCoroutine(SetVehiclePosition());
+            //StartCoroutine(RunFunctionsInSequence());
+            
         }
     }
     #endregion
@@ -50,7 +54,7 @@ public class AIController : MonoBehaviour
     /// <summary>
     /// Game Logic
     /// </summary>
-    void Update()
+    void FixedUpdate()
     {
         if (updateAllowed)
         {
@@ -91,19 +95,38 @@ public class AIController : MonoBehaviour
     {
         hasVehicleChanged = true;
     }
-    void SetVehiclePosition()
+    bool SetVehiclePosition()
     {
         for (int i = 0; i < tranformObjectsArr.Length; i++)
         {
             tranformObjectsArr[i].transform.position = aiStartingPosition.position;
+           // Debug.Log("Transform Obj" + i + " Position : " + tranformObjectsArr[i].transform.position + " Name : " + transform.parent.name + " Level Name : " + transform.parent.parent.parent.name);
+            //Debug.Log("1st Func Time : " + Time.time);
         }
+        
+        return true;
     }
+    /*IEnumerator SetVehiclePosition()
+    {
+        while(!transform.parent.gameObject.activeSelf) { yield return null; }
+
+        int i = 0;
+        do
+        {
+            //for (int i = 0; i < tranformObjectsArr.Length; i++)
+            tranformObjectsArr[i].transform.position = aiStartingPosition.position;
+            Debug.Log("Transform Obj" + i + " Position : " + tranformObjectsArr[i].transform.position + " Name : " + transform.parent.name);
+            i++;
+        } while (i < tranformObjectsArr.Length);
+
+        
+    }*/
     void SetInitialVehicleIfAllInactive()
     {
         bool isVehicleActive = false;
-        for(int i =0; i<tranformObjectsArr.Length;i++)
+        for (int i = 0; i < tranformObjectsArr.Length; i++)
         {
-            if(tranformObjectsArr[i].activeSelf)
+            if (tranformObjectsArr[i].activeSelf)
             {
                 isVehicleActive = true;
                 break;
@@ -113,6 +136,20 @@ public class AIController : MonoBehaviour
         {
             if (!tranformObjectsArr[0].gameObject.activeSelf) { tranformObjectsArr[0].gameObject.SetActive(true); }
         }
+    }
+
+    private IEnumerator RunFunctionsInSequence()
+    {
+        // Execute the first function
+        while(!SetVehiclePosition())
+        {
+            
+            yield return null;
+        }
+
+        //Debug.Log("2nd Func Time : " + Time.time);
+        // Now, execute the second function
+        SetInitialVehicleIfAllInactive();
     }
     #endregion
 
@@ -145,11 +182,11 @@ public class AIController : MonoBehaviour
         switch (difficulty)
         {
             case Difficulty.Easy:
-                return 0.5f; // 50% success rate
+                return 0.25f; // 25% success rate
             case Difficulty.Medium:
-                return 0.75f; // 80% success rate
+                return 0.35f; // 35% success rate
             case Difficulty.Hard:
-                return 0.94f; // 94% success rate
+                return 0.5f; // 50% success rate
             default:
                 Debug.LogError("Invalid difficulty setting");
                 return 0f;

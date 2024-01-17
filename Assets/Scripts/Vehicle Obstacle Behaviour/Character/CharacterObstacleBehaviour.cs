@@ -20,8 +20,13 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     [SerializeField] Vector3 rayCastOffsetClimbableTop;
     [SerializeField] Vector3 rayCastOffsetClimbableBottom;
 
+    [Header("Gravity Raycast Setting")]
+    [SerializeField] Vector3 gravityRaycastOffsetDown;
+    [SerializeField] float gravityRaycastLength;
+
     //Flags
     private bool slowCheck;
+    private bool stopWinCounter = false;
     
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -48,7 +53,8 @@ public class CharacterObstacleBehaviour : MonoBehaviour
         {
             StartCoroutine(TurnClimbingOff());
         }
-        IsOnGround();
+        RaycastForSlowCheck();
+        RaycastGravity();
     }
     #region Raycast Check For Stairs
     //Cast a ray to front of character to check for any stairs or Climbable surface
@@ -78,7 +84,7 @@ public class CharacterObstacleBehaviour : MonoBehaviour
         return false;
     }
     //Cast a ray on the ground to check for if is on ground
-    void IsOnGround()
+    void RaycastForSlowCheck()
     {
         RaycastHit hit;
         Vector3 rayCastOrigin = (transform.position + rayCastOffsetGround);
@@ -91,7 +97,16 @@ public class CharacterObstacleBehaviour : MonoBehaviour
                 if (slowCheck)
                 {
                     slowCheck = false;
-                    StartCoroutine(characterMovementScript.SlowSpeedInWater());
+                    StartCoroutine(characterMovementScript.SlowSpeedInDifferentTerrain());
+                }
+                
+            }
+            else if (hit.collider.CompareTag("Biketrail"))
+            {
+                if (slowCheck)
+                {
+                    slowCheck = false;
+                    StartCoroutine(characterMovementScript.SlowSpeedInDifferentTerrain());
                 }
             }
             else
@@ -102,9 +117,6 @@ public class CharacterObstacleBehaviour : MonoBehaviour
                     StartCoroutine(characterMovementScript.ResetSpeed());
                 }
             }
-
-            //Reset Y Velocity 
-            characterMovementScript.velocity.y = 0;
         }
     }
     #endregion
@@ -154,7 +166,19 @@ public class CharacterObstacleBehaviour : MonoBehaviour
         }
         else
         {
-            GameManager.Instance.winPosition++;
+            if (stopWinCounter != true) { GameManager.Instance.winPosition++; }
+            stopWinCounter = true;
+        }
+    }
+    //Apply a raycast with a small length to check for grounded if detected reset gravity
+    void RaycastGravity()
+    {
+        RaycastHit hit;
+        Vector3 origin = transform.position + gravityRaycastOffsetDown;
+        Debug.DrawRay(origin, Vector3.down * gravityRaycastLength, Color.white);
+        if (Physics.Raycast(origin, Vector3.down, out hit, gravityRaycastLength, groundLayer))
+        {
+            characterMovementScript.velocity.y = 0;
         }
     }
 }

@@ -14,7 +14,6 @@ public class MovementController : MonoBehaviour
     //Flags
     [SerializeField] public bool hasVehicleChanged;
     [SerializeField] private bool updateAllowed;
-
     #region State Handling
     /// <summary>
     /// State Handling
@@ -65,7 +64,7 @@ public class MovementController : MonoBehaviour
         if (updateAllowed)
         {
             if (hasVehicleChanged) { CheckVehicleAndGetComponent(); }
-            movementBehaviorSriptAttachedObject.Movement();
+                movementBehaviorSriptAttachedObject.Movement();
         }
     }
     //TODO:Check Performance hit this function keeps running in update. Good practice ? 

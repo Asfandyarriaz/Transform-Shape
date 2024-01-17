@@ -273,6 +273,7 @@ public class UIManager : MonoBehaviour
     void DisplayCash()
     {
         cashText.text = PlayerDataController.Instance.playerData.PlayerGold.ToString();
+        //cashText.text = "100";
     }
 
     //Display Different Position Object Based On Player Win Position

@@ -7,8 +7,6 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
     [SerializeField] VehicleProperties vehicleProperties;
     CharacterController carCharacterController;
     public bool allowMove = true;
-    public bool isOnGround;
-    public bool isClimbable;
 
     [Header("Speed")]
     [SerializeField] private float speed;
@@ -21,9 +19,6 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
     //Gravity
     public Vector3 velocity;
     public float gravity = -5f;
-
-    //Animator
-    private Animator animator;
 
     //Variables
     private float tempForceMultiplier;
@@ -66,14 +61,13 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
         }
         if (state == GameManager.GameState.Play)
         {
-            IncrementSpeed();
+            //IncrementSpeed();
         }
     }
 
     void Start()
     {
         carCharacterController = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
         speed = vehicleProperties.speed;
         tempSpeed = speed;
     }
@@ -82,12 +76,13 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
     {
         if (allowMove)
         {
-            carCharacterController.Move(Vector3.forward * speed * Time.deltaTime);
-            ApplyGravity();            
+            carCharacterController.Move(Vector3.forward * speed * Time.deltaTime);                     
         }
 
-        if (allowRotate)
+        if (allowRotate && allowMove)
             RotateToSlope();
+
+        ApplyGravity();
     }
 
     //5 % Increment with each level
@@ -104,7 +99,7 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
 
 
     //Reduce speed by 4 times
-    public IEnumerator SlowSpeedInWater()
+    public IEnumerator SlowSpeedInDifferentTerrain()
     {
         float time = 0;
         float velocity = 0;
@@ -115,7 +110,6 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
             time += Time.deltaTime;
             yield return null;
         }
-
     }
     public IEnumerator ResetSpeed()
     {
@@ -127,7 +121,7 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
             speed = velocity;
             time += Time.deltaTime;
             yield return null;
-        }
+        }        
     }
 
     void ApplyGravity()

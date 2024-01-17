@@ -1,4 +1,4 @@
-1. Game Fluidity  
+1. Game Fluidity  (Fixed)
   
   -When swapping between vehicles there's a small pause that stops the vehicle from moving
    it happens once per level when player select another vehicles 
@@ -14,7 +14,7 @@
    -In our game, movement stops and vehicle are stuck in that position
 
 
-3. Cars Flipping Over 
+3. Cars Flipping Over (Fixed)
    
    -Vehicles sometimes flip over because of rotation script attached onto them
     and this cause buggy behavior 
@@ -26,7 +26,7 @@
    
    -Sometimes boat clip through water
 
-6. AI Too Strong 
+6. AI Too Strong (Fixed)
    
   -Feedback was given that AI was weak
    Now feedback is given that AI is too strong.
@@ -52,13 +52,13 @@
    
    -Upgrade Screen needs a total overhaul 
 
-11. Character climbing speed slow 
+11. Character climbing speed slow (Fixed)
     
     -When character is climbing walls it feels slow
     -Although through character upgrading from upgrade screen we could easily fix 
      this issue ( Need to discuss further)
 
-12. Remove skip button from upgrade screen 
+12. Remove skip button from upgrade screen (Fixed)
     
     -Skip Button is too distracting and needs to be removed
 
@@ -73,7 +73,7 @@
     to currenlty active camera 
    -Feedback was given this does not feel good 
 
-15. Character climbing animation issue
+15. Character climbing animation issue 
     
     -When wall climbing is reached theres an animation bug where character switches between wall climbing to running
      then back to wall climbing 
@@ -94,25 +94,25 @@
     -When tank collides with obstacles, it feels jerky and not smooth 
      as if tank stops for a split second and waits for obstacle to turn off 
     
-19. Tank rotation after obstacle collision 
+19. Tank rotation after obstacle collision (Fixed)
      
     -Sometimes tank tries to rotate itself after hitting an obstacle. 
 
-20. AI clipping through ground when colliding with obstacles
+20. AI clipping through ground when colliding with obstacles (Fixed)
     
     -Sometimes when AI collides with obstacle they clip through ground and fall down 
 
-21. AI keep transition from tank to car
+21. AI keep transition from tank to car (Fixed)(Partially)
 
    -Although constraints are given to stop AI from transiting from tank to car but
     it needs rework 
 
-22. Wall climbing clipping bug 
+22. Wall climbing clipping bug (Fixed)
 
    -If by any means we force vehicles to clip through wall climbing by switching between vehicles
     we see unexpected behavior 
 
-23. Tank body not resetting position 
+23. Tank body not resetting position (Need To Test)
 
    -there is not constraint to reset tank bodys position 
     and sometimes through whatnot trigger tank body comes below its original position 

@@ -60,7 +60,7 @@ public class ProgressionScreen : MonoBehaviour
     }
     private void Update()
     {
-        Debug.Log("Count : " + count);
+
     }
 
     //TODO: FIX BUG !!

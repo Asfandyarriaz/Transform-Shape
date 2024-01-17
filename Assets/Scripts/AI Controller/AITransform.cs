@@ -9,6 +9,8 @@ public class AITransform : MonoBehaviour
     AIData aiDataScript;
 
     AIController aiControllerScript;
+    [Header("Layer Mask For All Raycast")]
+    [SerializeField] LayerMask layer;
 
     [Header("Raycast Setting Front")]
     [SerializeField] float frontLength;
@@ -235,7 +237,7 @@ public class AITransform : MonoBehaviour
             else
             {
                 if (isRaycastCoroutineAllowed)
-                    StartCoroutine(TurnOffRaycast(0));
+                    StartCoroutine(TurnOffRaycast());
             }
             //allowRaycastCheck = true;
         }
@@ -256,7 +258,7 @@ public class AITransform : MonoBehaviour
             }
             //allowRaycastCheck = true;
         }
-        //Set To Not 
+        /*//Set To Not 
         else if (!hit.collider.CompareTag("Water"))
         {
             if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
@@ -274,8 +276,8 @@ public class AITransform : MonoBehaviour
                     StartCoroutine(TurnOffRaycast());
             }
             //allowRaycastCheck = true;
-        }
-        if (hit.collider.CompareTag("Biketrail"))
+        }*/
+        else if (hit.collider.CompareTag("Biketrail"))
         {
             if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
             {
@@ -293,7 +295,7 @@ public class AITransform : MonoBehaviour
             }
             //allowRaycastCheck = true;
         }
-        if (hit.collider.CompareTag("Fly"))
+        else if (hit.collider.CompareTag("Fly"))
         {
             if (aiControllerScript.GenerateProbability(aiControllerScript.difficulty))
             {
@@ -312,22 +314,23 @@ public class AITransform : MonoBehaviour
             //allowRaycastCheck = true;
         }
 
-        RestartVehicleTimer();
+        //RestartVehicleTimer();
         //Change to car after plane
         //ChangeToCarAfterPlane();
     }
 
     void ChangeToVehicle()
     {
-        if (CheckCurrentActiveVehicle().name != "Car" && CheckCurrentActiveVehicle().name != "Boat" && CheckCurrentActiveVehicle().name != "Airplane")
-        {
+        //if (CheckCurrentActiveVehicle().name != "Car" && CheckCurrentActiveVehicle().name != "Boat" && CheckCurrentActiveVehicle().name != "Airplane")
+        //{
+            //Debug.Log("Change To Vehicle Called : " + CheckCurrentActiveVehicle().name + " Name : " + this.transform.parent.gameObject.name);
             if (CheckCurrentActiveVehicle().name != aiDataScript.fastestVehicleInCurrentLevel.name)
             {
                 ChangeToObject(aiDataScript.fastestVehicleInCurrentLevel.name, DisableCurrentActive());
                 aiControllerScript.hasVehicleChanged = true;
                 //GameManager.Instance.UpdateGameState(GameManager.GameState.Transform);
             }
-        }
+        //}
     }
 
     IEnumerator ChangeToVehicleAfterPlane()
@@ -358,7 +361,7 @@ public class AITransform : MonoBehaviour
     {
         Vector3 raycastOrigin = (detectionObject.transform.position + frontOffset);
         Debug.DrawRay(raycastOrigin, transform.forward * frontRaycastLength, Color.black);
-        if (Physics.Raycast(raycastOrigin, Vector3.forward * frontRaycastLength, out RaycastHit hit, frontRaycastLength))
+        if (Physics.Raycast(raycastOrigin, Vector3.forward * frontRaycastLength, out RaycastHit hit, frontRaycastLength, layer))
         {
             //Debug.Log("Hit Raycast Front : " + hit.collider.tag);
             if (hit.collider.CompareTag("Climbable") || hit.collider.CompareTag("Stairs") || hit.collider.CompareTag("Biketrail") || hit.collider.CompareTag("Water"))
@@ -381,8 +384,9 @@ public class AITransform : MonoBehaviour
         RaycastHit hit;
         Vector3 rayCastOrigin = (detectionObject.transform.position + groundOffset);
         Debug.DrawRay(rayCastOrigin, Vector3.down * groundRaycastLength, Color.white);
-        if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, groundRaycastLength))
+        if (Physics.Raycast(rayCastOrigin, Vector3.down, out hit, groundRaycastLength, layer))
         {
+            //Debug.Log("Check Ground Raycast Change To Vehicle Check : " + hit.collider.tag + " Name : " + this.transform.parent.gameObject.name);
             if (hit.collider.CompareTag("Climbable") || hit.collider.CompareTag("Stairs") || hit.collider.CompareTag("Biketrail") || hit.collider.CompareTag("Water"))
             {
                 return false;
@@ -392,7 +396,7 @@ public class AITransform : MonoBehaviour
                 return true;
             }
         }
-        return true;
+        return false;
     }
 
     #endregion
@@ -504,14 +508,22 @@ public class AITransform : MonoBehaviour
 
             if (tankAvailable)
             {
-                ChangeToObject("Tank", DisableCurrentActive());
-                aiControllerScript.hasVehicleChanged = true;
+                if (CheckCurrentActiveVehicle().name != "Tank")
+                {
+                    ChangeToObject("Tank", DisableCurrentActive());
+                    aiControllerScript.hasVehicleChanged = true;
+                }
             }
             else
             {
                 ChangeToObject("Airplane", DisableCurrentActive());
                 aiControllerScript.hasVehicleChanged = true;
             }
+        }
+        else
+        {
+            if (isRaycastCoroutineAllowed)
+                StartCoroutine(TurnOffRaycast());
         }
     }
     #endregion

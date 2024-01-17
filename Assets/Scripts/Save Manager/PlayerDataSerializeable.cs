@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 [System.Serializable]
 public class PlayerDataSerializeable  {
-	public int PlayerGold = 100;
+	public int PlayerGold = 0;
 
     public int characterLevel=1;
     public int carLevel=1;

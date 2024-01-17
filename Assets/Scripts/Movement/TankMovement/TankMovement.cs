@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class TankMovement : MonoBehaviour, IInterfaceMovement
 {
+    [Header("Tank Obstacle Behavior")]
     [SerializeField] VehicleProperties vehicleProperties;
     CharacterController tankCharacterController;
     public bool allowMove = true;
-    public bool isOnGround;
-    public bool isClimbable;
 
     [Header("Speed")]
     [SerializeField] private float speed;
@@ -21,9 +20,6 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
     //Gravity
     public Vector3 velocity;
     public float gravity = -5f;
-
-    //Animator
-    private Animator animator;
 
     //Variables
     private float tempForceMultiplier;
@@ -66,14 +62,13 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
         }
         if (state == GameManager.GameState.Play)
         {
-            IncrementSpeed();
+            //IncrementSpeed();
         }
     }
 
     void Start()
     {
         tankCharacterController = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
         speed = vehicleProperties.speed;
         tempSpeed = speed;
     }
@@ -83,11 +78,13 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
         if (allowMove)
         {
             tankCharacterController.Move(Vector3.forward * speed * Time.deltaTime);
-            ApplyGravity();
         }
 
-        if (allowRotate)
+        if (allowRotate && allowMove)
             RotateToSlope();
+
+        ApplyGravity();
+        //Debug.Log("Allow Move " + allowMove);
     }
 
     //5 % Increment with each level
@@ -104,7 +101,7 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
 
 
     //Reduce speed by 4 times
-    public IEnumerator SlowSpeedInWater()
+    public IEnumerator SlowSpeedInDifferentTerrain()
     {
         float time = 0;
         float velocity = 0;
@@ -115,7 +112,6 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
             time += Time.deltaTime;
             yield return null;
         }
-
     }
     public IEnumerator ResetSpeed()
     {
@@ -157,4 +153,16 @@ public class TankMovement : MonoBehaviour, IInterfaceMovement
             }
         }
     }
+    /*public IEnumerator RotateToSlope(string ResetRotate)
+    {
+        float time = 0;
+        float duration = 1f;
+        allowRotate = false;
+        while (time < duration)
+        {
+            tankObject.transform.rotation = Quaternion.Slerp(tankObject.transform.rotation, Quaternion.identity, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }*/
 }

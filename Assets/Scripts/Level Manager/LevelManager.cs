@@ -26,13 +26,11 @@ public class LevelManager : MonoBehaviour
     {
         if (/*state == GameManager.GameState.PreStart ||*/ state == GameManager.GameState.Start)
         {
-            Debug.Log("Current Level : " + PlayerDataController.Instance.playerData.currentLevel);
             SetCurrentLevelActive(PlayerDataController.Instance.playerData.currentLevel);
         }
         if (state == GameManager.GameState.Win)
         {
-            /*PlayerDataController.Instance.playerData.currentLevel++;
-            PlayerDataController.Instance.Save();*/
+
         }
         if (state == GameManager.GameState.PostWinSetupGameData)
         {

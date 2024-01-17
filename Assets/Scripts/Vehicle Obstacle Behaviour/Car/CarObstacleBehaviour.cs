@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CarObstacleBehaviour : MonoBehaviour
 {
-    [SerializeField] CarMovement carMovementScript;
+    [SerializeField] CarMovementController carMovementScript;
 
     [Header("Raycast Setting Front")]
     [SerializeField] float rayCastLengthFront;
@@ -20,6 +20,7 @@ public class CarObstacleBehaviour : MonoBehaviour
     public bool slowCheck;
     public bool startCoroutine = true;
     private bool startCoroutineRotate = true;
+    private bool stopWinCounter = false;
 
     //Varaibles
     private float stopRotateSeconds = 2f;
@@ -35,14 +36,14 @@ public class CarObstacleBehaviour : MonoBehaviour
         {
             //Stop Car Logic
         }
-        if (collision.gameObject.CompareTag("Water"))
-        {
-            carMovementScript.allowMove = false;
-        }
-        else
-        {
-            carMovementScript.allowMove = true;
-        }
+        //if (collision.gameObject.CompareTag("Water"))
+        //{
+        //    carMovementScript.allowMove = false;
+        //}
+        //else
+        //{
+        //    carMovementScript.allowMove = true;
+        //}
 
         //Win Check
         if (collision.gameObject.CompareTag("Win"))
@@ -56,16 +57,18 @@ public class CarObstacleBehaviour : MonoBehaviour
     }
     private void Update()
     {
-        if (RaycastFront() || RaycastDown() || RaycastDownCheckForStairs())
+        if (RaycastFront() || RaycastDownCheckForStairs())
         {
+            Debug.Log("Allow Move False In Condition");
             carMovementScript.allowMove = false;
         }
-        else if (!RaycastFront() && !RaycastDown())
+        else if (!RaycastFront() && !RaycastDownCheckForStairs())
         {
+            Debug.Log("Allow Move True In Condition");
             carMovementScript.allowMove = true;
         }
 
-        RaycastDownCheckForStairs();
+        RaycastForSlowCheck();
     }
 
     bool RaycastFront()
@@ -76,19 +79,14 @@ public class CarObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(origin, Vector3.forward * rayCastLengthFront, Color.red);
         if (Physics.Raycast(origin, Vector3.forward, out hit, rayCastLengthFront))
         {
+            Debug.Log("Raycast Front : " + hit.collider.gameObject.name);
             if (hit.collider.CompareTag("Stairs"))
-            {
-                carMovementScript.StopCar();
+            {              
                 carMovementScript.allowMove = false;
-                // if(startCoroutine)
-                //StartCoroutine(SlowCar());
                 return true;
             }
             if (hit.collider.CompareTag("Not Passable"))
             {
-                //if (startCoroutine)
-                //StartCoroutine(SlowCar());
-                carMovementScript.StopCar();
                 carMovementScript.allowMove = false;
                 return true;
             }
@@ -99,7 +97,6 @@ public class CarObstacleBehaviour : MonoBehaviour
             }
             if (hit.collider.CompareTag("Climbable"))
             {
-                carMovementScript.StopCar();
                 carMovementScript.allowMove = false;
                 return true;
             }
@@ -107,7 +104,7 @@ public class CarObstacleBehaviour : MonoBehaviour
         return false;
     }
 
-    bool RaycastDown()
+    bool RaycastForSlowCheck()
     {
         RaycastHit hit;
         Vector3 origin = transform.position + rayCastOffsetDown;
@@ -115,12 +112,12 @@ public class CarObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(origin, Vector3.down * Mathf.Infinity, Color.green);
         if (Physics.Raycast(origin, Vector3.down, out hit, Mathf.Infinity))
         {
+            Debug.Log("Hit Collider : " + hit.collider.gameObject.name);
             if (hit.collider.CompareTag("Water"))
             {
                 if (slowCheck)
                 {
                     StartCoroutine(carMovementScript.SlowSpeedInDifferentTerrain());
-                    slowCheck = false;
                 }
             }
             else
@@ -128,7 +125,6 @@ public class CarObstacleBehaviour : MonoBehaviour
                 if (slowCheck == false)
                 {
                     StartCoroutine(carMovementScript.ResetSpeed());
-                    slowCheck = true;
                 }
             }
         }
@@ -142,9 +138,9 @@ public class CarObstacleBehaviour : MonoBehaviour
         Debug.DrawRay(origin, Vector3.down * rayCastDownLength, Color.green);
         if (Physics.Raycast(origin, Vector3.down, out hit, rayCastDownLength))
         {
+            Debug.Log("Raycast Down For Stairs : " + hit.collider.gameObject.name);
             if (hit.collider.CompareTag("Stairs"))
             {
-                carMovementScript.StopCar();
                 return true;
             }
         }
@@ -183,7 +179,8 @@ public class CarObstacleBehaviour : MonoBehaviour
         }
         else
         {
-            GameManager.Instance.winPosition++;
+            if (stopWinCounter != true) { GameManager.Instance.winPosition++; }
+            stopWinCounter = true;
         }
     }
 }

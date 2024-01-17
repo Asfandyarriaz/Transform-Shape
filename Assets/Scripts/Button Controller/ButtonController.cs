@@ -263,7 +263,6 @@ public class ButtonController : MonoBehaviour
         }
 
         vehicleSelectorObject.sizeDelta = sizeDelta;
-        Debug.Log("Active Buttons : " + activeButtons);
     }
 
     void FollowPlayerMarker()
