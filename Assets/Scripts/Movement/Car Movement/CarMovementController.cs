@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CarMovementController : MonoBehaviour, IInterfaceMovement
 {
@@ -27,6 +28,8 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
     private int slowSpeed = 4;
     private float slowDuration = 0.5f;
     private float resetDuration = 1.5f;
+
+    public float carSpeed;
 
     [Header("Slope Rotation")]
     public float rotationSpeed = 45f;  // Adjust the rotation speed as needed
@@ -82,6 +85,7 @@ public class CarMovementController : MonoBehaviour, IInterfaceMovement
         if (allowRotate && allowMove)
             RotateToSlope();
 
+        carSpeed = carCharacterController.velocity.magnitude;
         ApplyGravity();
     }
 

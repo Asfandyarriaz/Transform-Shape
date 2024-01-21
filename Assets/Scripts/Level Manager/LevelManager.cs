@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Store All levels and activates them based on current level 
@@ -39,6 +38,11 @@ public class LevelManager : MonoBehaviour
             PlayerDataController.Instance.playerData.currentLevel++;
             PlayerDataController.Instance.Save();
         }
+    }
+
+    private void Start()
+    {
+        SetCurrentLevelActive(PlayerDataController.Instance.playerData.currentLevel);
     }
     void SetCurrentLevelActive(int index)
     {
@@ -106,5 +110,13 @@ public class LevelManager : MonoBehaviour
                 }
             }
         }
+    }
+    public void ReloadScene()
+    {
+        // Get the current active scene's name
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        // Reload the current scene
+        SceneManager.LoadScene(currentSceneName);
     }
 }

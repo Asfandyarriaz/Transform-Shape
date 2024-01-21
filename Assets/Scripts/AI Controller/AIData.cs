@@ -42,7 +42,7 @@ public class AIData : MonoBehaviour
             //Debug.Log("Fastest Vehicle In Level : " + fastestVehicleInCurrentLevel.name);
         }
 
-        if (state == GameManager.GameState.SetupGameData)
+        if (state == GameManager.GameState.Play)
         {
             //Debug.Log("Number of times this statement run : ");
             CurrentActiveVehicles();
@@ -98,12 +98,12 @@ public class AIData : MonoBehaviour
             }
         }
 
-        /*if (aiControllerScript!= null)
-        {*/
-            //Set Fastest Vehicle
-            for (int i = 0; i < aiControllerScript.tranformObjectsArr.Length; i++)
+        if (aiControllerScript != null)
+        {
+            if (aiControllerScript.tranformObjectsArr != null)
             {
-                if (aiControllerScript.tranformObjectsArr[i] != null)
+                //Set Fastest Vehicle
+                for (int i = 0; i < aiControllerScript.tranformObjectsArr.Length; i++)
                 {
                     if (fastestVehicle.Equals(aiControllerScript.tranformObjectsArr[i].name))
                     {
@@ -111,7 +111,16 @@ public class AIData : MonoBehaviour
                     }
                 }
             }
-       // }
+            else
+            {
+                Debug.LogWarning("aiControllerScript.tranformObjectsArr == null");
+                FindFastestVehicle();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("aiControllerScript == null");            
+        }
     }
 }
 

@@ -61,11 +61,7 @@ public class VehicleUnlockProgress : MonoBehaviour
         int gliderLevelNeeded = 10;   //After Further 3 Levels
         int scooterLevelNeeded = 13; //After Further 3 Levels
 
-
-        /*Debug.Log("Inside Vehicle Unlock Progress");
-        Debug.Log("Current Active Level : " + levelManagerScript.Int_GetCurrentActiveLevel());
-        Debug.Log("Boat Level Needed : " + boatLevelNeeded);
-        Debug.Log("Is Current Level " + levelManagerScript.Int_GetCurrentActiveLevel() + " < " + 2);*/
+        
         //Unlock Boat - Levels Needed 2 .   1,2,3 Number Notation 
         if (levelManagerScript.Int_GetCurrentActiveLevel() <= boatLevelNeeded && levelManagerScript.Int_GetCurrentActiveLevel() < 2)
         {
@@ -127,26 +123,25 @@ public class VehicleUnlockProgress : MonoBehaviour
     IEnumerator FillAmountImage(Image image, float amount, int index)
     {
         float time = 0;
-        float durtaion = 10f;
-        float fillAmount = 0;    
-        
-        //SetPercentageText(amountAlreadyFilled, index);
+        float durtaion = 20f;
+        float fillAmount = 0; 
+
         while (time < durtaion)
         {
-            fillAmount = Mathf.Lerp(fillAmount, amount, (time / durtaion));
-            image.fillAmount = fillAmount;
+            fillAmount = Mathf.Lerp(fillAmount, amount, (time/durtaion)/2);
             time += Time.deltaTime;
+            image.fillAmount = fillAmount;
+
+            if(text[index].text == "99%")
+            {
+                fillAmount = 1;
+                image.fillAmount = fillAmount;
+                SetPercentageText(image.fillAmount, index);
+                break;
+            }
             SetPercentageText(image.fillAmount, index);
             yield return null;
         }       
-        yield return null;
-
-        if(fillAmount >= 99)
-        {
-            fillAmount = 1;
-            image.fillAmount = fillAmount;
-            SetPercentageText(image.fillAmount, index);
-        }
     }
 
     //Percentage text

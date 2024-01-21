@@ -186,7 +186,6 @@ public class ButtonController : MonoBehaviour
                 Vector3 newPos = new Vector3(movementControllerScript.startingPosition.position.x, currentPos.position.y + airplaneYOffset, currentPos.position.z);
                 movementControllerScript.tranformObjectsArr[i].transform.position = newPos;
                 movementControllerScript.tranformObjectsArr[i].transform.rotation = resetRotation;
-                Debug.Log("Change To Object Method");
                 movementControllerScript.tranformObjectsArr[i].SetActive(true);
 
                 //Set Particle as child and play
@@ -196,22 +195,31 @@ public class ButtonController : MonoBehaviour
         }
     }
 
+    //TODO: Optimize get component
     void SetBackgroundImageAndDeselectAllOthers(int index)
     {
-
         for (int i = 0; i < buttonArray.Length; i++)
         {
             if (i == index)
             {
                 buttonArray[i].sprite = currentSelectedImage;
                 buttonArray[i].gameObject.transform.localScale = selectedScale;
+
+                //Set Interactable off 
+                Button button = buttonArray[i].gameObject.GetComponent<Button>();
+                button.interactable = false;
+
+
             }
             else
             {
                 buttonArray[i].sprite = deselectedImage;
                 buttonArray[i].gameObject.transform.localScale = new Vector3(1, 1, 1);
-            }
 
+                //Set Interactable on 
+                Button button = buttonArray[i].gameObject.GetComponent<Button>();
+                button.interactable = true;
+            }
         }
     }
 
@@ -221,6 +229,10 @@ public class ButtonController : MonoBehaviour
         {
             buttonArray[i].sprite = deselectedImage;
             buttonArray[i].gameObject.transform.localScale = new Vector3(1, 1, 1);
+
+            //Set Interactable on 
+            Button button = buttonArray[i].gameObject.GetComponent<Button>();
+            button.interactable = true;
         }
     }
 
@@ -263,10 +275,5 @@ public class ButtonController : MonoBehaviour
         }
 
         vehicleSelectorObject.sizeDelta = sizeDelta;
-    }
-
-    void FollowPlayerMarker()
-    {
-
     }
 }

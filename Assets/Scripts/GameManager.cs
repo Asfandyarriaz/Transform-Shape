@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
     //Global Varaibles
     public int winPosition = 0;
 
+    [SerializeField] LevelManager levelManagerScript;
+
     private void Awake()
     {
         Instance = this;
@@ -20,8 +22,14 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-       // UpdateGameState(GameState.PreStart);
-        UpdateGameState(GameState.Start);
+        if (PlayerDataController.Instance.playerData.currentLevel > 0)
+        {
+            UpdateGameState(GameState.ProgressionScreen);
+        }
+        else
+        {
+            UpdateGameState(GameState.Start);
+        }
     }
 
     public void UpdateGameState(GameState newState)
@@ -59,8 +67,9 @@ public class GameManager : MonoBehaviour
         //await Task.Delay(1);
         UpdateGameState(GameState.Start);
     }*/
-    private void HandleStartState()
-    {       
+    private async void HandleStartState()
+    {
+        await Task.Delay(1);
         winPosition = 0;
     }
     private void HandleSettingsState()
@@ -81,7 +90,7 @@ public class GameManager : MonoBehaviour
         await Task.Delay(1);
         UpdateGameState(GameState.Play);
     }
-    private  void HandlePlayState()
+    private void HandlePlayState()
     {
 
     }
@@ -102,18 +111,19 @@ public class GameManager : MonoBehaviour
     {
 
     }
-    private async void HandleWinState()
+    private void HandleWinState()
     {
-        await Task.Delay(1);
-        UpdateGameState(GameState.Start);
+        //await Task.Delay(1);
+        //UpdateGameState(GameState.Start);
+        levelManagerScript.ReloadScene();
     }
     private void HandleLoseState()
     {
 
     }
-    private async void HandlePostWinSetupGameDataState()
+    private void HandlePostWinSetupGameDataState()
     {
-        await Task.Delay(1);
+        //await Task.Delay(1);
         UpdateGameState(GameState.Win);
     }
 

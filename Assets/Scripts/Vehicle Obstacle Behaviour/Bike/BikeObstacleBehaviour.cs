@@ -45,16 +45,19 @@ public class BikeObstacleBehaviour : MonoBehaviour
     }
     private void Update()
     {
-        if ((RaycastFront() || RaycastDownCheckForStairs()))
+        if (Time.frameCount % 2 == 0)
         {
-            bikeMovementScript.allowMove = false;
-        }
-        else if (!RaycastFront() && !RaycastDownCheckForStairs())
-        {
-            bikeMovementScript.allowMove = true;
-        }
+            if ((RaycastFront() || RaycastDownCheckForStairs()))
+            {
+                bikeMovementScript.allowMove = false;
+            }
+            else if (!RaycastFront() && !RaycastDownCheckForStairs())
+            {
+                bikeMovementScript.allowMove = true;
+            }
 
-        RaycastForSlowCheck();
+            RaycastForSlowCheck();
+        }
         RaycastGravity();
     }
     #region Raycast Check For Stairs

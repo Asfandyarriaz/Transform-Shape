@@ -23,6 +23,9 @@ public class AITransform : MonoBehaviour
     [Header("Car Change Timer")]
     [SerializeField] private float minTime;
     [SerializeField] private float maxTime;
+
+    [Header("Turn Off Raycast Time")]
+    [SerializeField] private float tunOffRaycastTime;
     //Variables 
     Quaternion resetRotation = Quaternion.Euler(0, 0, 0);
 
@@ -83,19 +86,22 @@ public class AITransform : MonoBehaviour
 
     private void Update()
     {
-        if (updateAllowed)
+        if (Time.frameCount % 2 == 0)
         {
-            ResetFlags();
-            if (allowRaycastCheck)
+            if (updateAllowed)
             {
-                CheckFront();
-                CheckDown();
-            }
-            ChangeToVehicleTimer();
+                ResetFlags();
+                if (allowRaycastCheck)
+                {
+                    CheckFront();
+                    CheckDown();
+                }
+                ChangeToVehicleTimer();
 
-            if (allowAirplaneCoroutine)
-            {
-                StartCoroutine(ChangeToVehicleAfterPlane());
+                if (allowAirplaneCoroutine)
+                {
+                    StartCoroutine(ChangeToVehicleAfterPlane());
+                }
             }
         }
     }
@@ -473,7 +479,7 @@ public class AITransform : MonoBehaviour
         isRaycastCoroutineAllowed = false;
         allowRaycastCheck = false;
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(tunOffRaycastTime);
         allowRaycastCheck = true;
         isRaycastCoroutineAllowed = true;
     }

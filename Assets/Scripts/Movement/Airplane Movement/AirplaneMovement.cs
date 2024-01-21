@@ -62,10 +62,9 @@ public class AirplaneMovement : MonoBehaviour, IInterfaceMovement
     {       
         if (allowMove)
         {
-            forwardSpeed = Mathf.Lerp(forwardSpeed, 12, 1 * Time.fixedDeltaTime);
+            forwardSpeed = Mathf.Lerp(forwardSpeed, 9, 1 * Time.fixedDeltaTime);
             Vector3 forwardVelocity = transform.forward * forwardSpeed;
             rb.velocity = forwardVelocity;
-            Debug.Log("Forward Speed : " + forwardSpeed);
         }
         else
         {

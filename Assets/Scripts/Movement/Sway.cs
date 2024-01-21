@@ -13,7 +13,7 @@ public class Sway : MonoBehaviour
     //Variables
     float sway;
 
-    private void FixedUpdate()
+    private void Update()
     {
         sway = Mathf.Sin(Time.time * swaySpeed) * swayAmount;
         transform.rotation = Quaternion.Euler(0, 0, sway);

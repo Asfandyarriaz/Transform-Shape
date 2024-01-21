@@ -32,11 +32,6 @@ public class MovementController : MonoBehaviour
         if (state == GameManager.GameState.Play)
         {
             updateAllowed = true;
-            
-        }
-        if (state == GameManager.GameState.Play)
-        {
-            updateAllowed = true;
             ResetFlags();
 
         }
@@ -59,6 +54,13 @@ public class MovementController : MonoBehaviour
     /// <summary>
     /// Game Logic
     /// </summary>
+    /// 
+    private void Start()
+    {
+        UserStartPoint();
+        SetVehiclePosition();
+        SetDefaultVehicle();
+    }
     void FixedUpdate()
     {
         if (updateAllowed)

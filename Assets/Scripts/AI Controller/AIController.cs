@@ -39,7 +39,7 @@ public class AIController : MonoBehaviour
             ResetFlags();
         }
 
-        if (state == GameManager.GameState.SetupGameData || state == GameManager.GameState.Start || state == GameManager.GameState.Play)
+        if (/*state == GameManager.GameState.SetupGameData || state == GameManager.GameState.Start || */state == GameManager.GameState.Play)
         {
             SetVehiclePosition();
             SetInitialVehicleIfAllInactive();
@@ -69,7 +69,7 @@ public class AIController : MonoBehaviour
         movementBehaviorSriptAttachedObject = tranformObjectsArr[vehicleIndex].gameObject.GetComponent<IInterfaceMovement>();
         hasVehicleChanged = false;
     }
-    int CheckActiveVehicle()
+    public int CheckActiveVehicle()
     {
         for (int i = 0; i < tranformObjectsArr.Length; i++)
         {

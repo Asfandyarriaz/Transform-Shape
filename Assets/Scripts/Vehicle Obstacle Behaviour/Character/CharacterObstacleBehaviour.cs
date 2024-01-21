@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class CharacterObstacleBehaviour : MonoBehaviour
 {
@@ -24,16 +22,20 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     [SerializeField] Vector3 gravityRaycastOffsetDown;
     [SerializeField] float gravityRaycastLength;
 
+    [Header("Push Back")]
+    [SerializeField] private float pushBackDistance;
+    [SerializeField] private float lerpDuration;
+
     //Flags
     private bool slowCheck;
     private bool stopWinCounter = false;
-    
+
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.CompareTag("Obstacle"))
         {
-            
+            StartCoroutine(PushBack());
         }
 
         //Win Check
@@ -44,6 +46,7 @@ public class CharacterObstacleBehaviour : MonoBehaviour
     }
     private void Update()
     {
+
         if (CheckFrontClimbableTop() || CheckFrontClimbableBottom())
         {
             characterMovementScript.isClimbable = true;
@@ -54,6 +57,7 @@ public class CharacterObstacleBehaviour : MonoBehaviour
             StartCoroutine(TurnClimbingOff());
         }
         RaycastForSlowCheck();
+
         RaycastGravity();
     }
     #region Raycast Check For Stairs
@@ -99,7 +103,7 @@ public class CharacterObstacleBehaviour : MonoBehaviour
                     slowCheck = false;
                     StartCoroutine(characterMovementScript.SlowSpeedInDifferentTerrain());
                 }
-                
+
             }
             else if (hit.collider.CompareTag("Biketrail"))
             {
@@ -180,5 +184,24 @@ public class CharacterObstacleBehaviour : MonoBehaviour
         {
             characterMovementScript.velocity.y = 0;
         }
+    }
+
+    IEnumerator PushBack()
+    {
+        characterMovementScript.allowMove = false;
+        float time = 0;
+        Vector3 intialPosition = transform.position;
+        Vector3 moveBackPosition = new Vector3(transform.position.x, transform.position.y, (transform.position.z - pushBackDistance));
+        Vector3 newPosition;
+        while (time < lerpDuration)
+        {
+            float t = time / lerpDuration;
+            newPosition = Vector3.Lerp(intialPosition, moveBackPosition, t);
+            time += Time.deltaTime;
+            transform.position = newPosition;
+            yield return null;
+        }
+        transform.position = moveBackPosition;
+        characterMovementScript.allowMove = true;
     }
 }

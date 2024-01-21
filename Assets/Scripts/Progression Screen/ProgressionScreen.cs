@@ -255,6 +255,6 @@ public class ProgressionScreen : MonoBehaviour
     }
     public void OnClickNextButton()
     {
-        GameManager.Instance.UpdateGameState(GameManager.GameState.NextVehicleProgress);
+        GameManager.Instance.UpdateGameState(GameManager.GameState.Start);
     }
 }

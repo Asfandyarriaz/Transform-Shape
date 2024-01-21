@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f377efe5d60a914f94514afde0e7a5c, type: 3}
   m_Name: Airplane
   m_EditorClassIdentifier: 
-  speed: 9
+  speed: 7
   currentUpgradeLevel: 1

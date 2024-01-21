@@ -67,6 +67,8 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
 
     public void Movement()
     {
+        if (allowMove)
+        {
             if (isClimbable)
             {
                 characterController.Move(Vector3.up * (speed - climbingSpeed) * Time.deltaTime);
@@ -75,7 +77,8 @@ public class CharacterMovement : MonoBehaviour, IInterfaceMovement
             {
                 characterController.Move(Vector3.forward * speed * Time.deltaTime);
                 ApplyGravity();
-            }    
+            }
+        }
         AnimationController();
     }
 

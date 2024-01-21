@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f377efe5d60a914f94514afde0e7a5c, type: 3}
   m_Name: Boat
   m_EditorClassIdentifier: 
-  speed: 7
+  speed: 10
   currentUpgradeLevel: 1

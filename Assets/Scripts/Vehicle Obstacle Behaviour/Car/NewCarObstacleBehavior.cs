@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class NewCarObstacleBehavior : MonoBehaviour
 {
@@ -43,16 +41,19 @@ public class NewCarObstacleBehavior : MonoBehaviour
     }
     private void Update()
     {
-        if ( (RaycastFront() || RaycastDownCheckForStairs()))
+        if (Time.frameCount % 2 == 0)
         {
-            carMovementScript.allowMove = false;
-        }
-        else if (!RaycastFront() && !RaycastDownCheckForStairs())
-        {
-            carMovementScript.allowMove = true;
-        }
+            if ((RaycastFront() || RaycastDownCheckForStairs()))
+            {
+                carMovementScript.allowMove = false;
+            }
+            else if (!RaycastFront() && !RaycastDownCheckForStairs())
+            {
+                carMovementScript.allowMove = true;
+            }
 
-        RaycastForSlowCheck();
+            RaycastForSlowCheck();
+        }
     }
     #region Raycast Check For Stairs
     //Cast a ray to front of character to check for any stairs or Climbable surface

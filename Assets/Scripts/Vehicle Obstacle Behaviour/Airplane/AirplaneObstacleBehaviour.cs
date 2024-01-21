@@ -27,11 +27,13 @@ public class AirplaneObstacleBehaviour : MonoBehaviour
     }
     private void Update()
     {
-        if (CheckFront())
-            airplaneMovementScript.allowMove = false;
-        else
-            airplaneMovementScript.allowMove = true;
-
+        if (Time.frameCount % 2 == 0)
+        {
+            if (CheckFront())
+                airplaneMovementScript.allowMove = false;
+            else
+                airplaneMovementScript.allowMove = true;
+        }
     }
 
     bool CheckFront()

@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Threading.Tasks;
 /// <summary>
 /// Get AI Transform list from current active level
 /// Get Finish Line from
@@ -50,10 +49,11 @@ public class ProgressBarController : MonoBehaviour
     [Header("Current Level Text")]
     [SerializeField] TMP_Text CurrentLevelText;
 
-    //Variables
-    //float distanceToFinish;
-    //float totalDistance;
-    //float progressPercentage;
+    //AI Controller
+    AIController ai1Controller;
+    AIController ai2Controller;
+    AIController ai3Controller;
+
 
     //Flags
     private bool isSetupComplete = false;
@@ -79,30 +79,29 @@ public class ProgressBarController : MonoBehaviour
     }
     void GameManagerOnGameStateChanged(GameManager.GameState state)
     {
-        if (state == GameManager.GameState.Transform)
-        {
-            SetPlayerActiveVehicle();        
-        }
-
         if (state == GameManager.GameState.Play)
         {
             SetCurrentLevelText();
+            SetCurrentLevelAIController();
         }
     }
     void Update()
     {
         if (isSetupComplete)
         {
-            if(movementControllerScript.hasVehicleChanged)
+            if (movementControllerScript.hasVehicleChanged)
             {
                 SetPlayerActiveVehicle();
             }
-            UserProgress();
-            AI1Progress();
-            AI2Progress();
-            AI3Progress();
-            SetAIActiveVehicle();
-            SetCurrentLevelText();
+            if (Time.frameCount % 2 == 0)
+            {
+                UserProgress();
+                AI1Progress();
+                AI2Progress();
+                AI3Progress();
+                //SetAIActiveVehicle();
+                SetCurrentLevelText();
+            }
         }
     }
 
@@ -162,6 +161,12 @@ public class ProgressBarController : MonoBehaviour
     }
     void AI1Progress()
     {
+        //Check if vehicle changed
+        if(ai1Controller.hasVehicleChanged)
+        {
+            ai1Position = ai1Controller.tranformObjectsArr[ai1Controller.CheckActiveVehicle()].transform;
+        }
+
         // Calculate the AI's progress
         float distanceToFinish = Vector3.Distance(ai1Position.position, finishLine.position);
         float totalDistance = Vector3.Distance(ai1StartPoint.position, finishLine.position);
@@ -179,6 +184,11 @@ public class ProgressBarController : MonoBehaviour
     }
     void AI2Progress()
     {
+        //Check if vehicle changed
+        if (ai2Controller.hasVehicleChanged)
+        {
+            ai2Position = ai2Controller.tranformObjectsArr[ai2Controller.CheckActiveVehicle()].transform;
+        }
         // Calculate the AI's progress
         float distanceToFinish = Vector3.Distance(ai2Position.position, finishLine.position);
         float totalDistance = Vector3.Distance(ai2StartPoint.position, finishLine.position);
@@ -196,6 +206,11 @@ public class ProgressBarController : MonoBehaviour
     }
     void AI3Progress()
     {
+        //Check if vehicle changed
+        if (ai3Controller.hasVehicleChanged)
+        {
+            ai3Position = ai3Controller.tranformObjectsArr[ai3Controller.CheckActiveVehicle()].transform;
+        }
         // Calculate the AI's progress
         float distanceToFinish = Vector3.Distance(ai3Position.position, finishLine.position);
         float totalDistance = Vector3.Distance(ai3StartPoint.position, finishLine.position);
@@ -242,8 +257,6 @@ public class ProgressBarController : MonoBehaviour
                 AIController aiControllerScript3 = aiObj.transform.GetChild(i).gameObject.GetComponentInChildren<AIController>();
                 aiTransformList3 = aiControllerScript3.tranformObjectsArr;
             }
-
-
         }
     }
 
@@ -278,7 +291,33 @@ public class ProgressBarController : MonoBehaviour
 
     void SetCurrentLevelText()
     {
-        //Debug.Log("Current Level : " + levelManagerScript.Int_GetCurrentActiveLevel());
         CurrentLevelText.text = "Level " + (levelManagerScript.Int_GetCurrentActiveLevel() + 1);
+    }
+
+    //Check current active level and assign all AI's Controller
+    void SetCurrentLevelAIController()
+    {
+        GameObject currentLevel = levelManagerScript.GetCurrentActiveLevels();
+
+        for (int i = 0; i < currentLevel.transform.childCount; i++)
+        {
+            if (currentLevel.transform.GetChild(i).name.Equals("AI"))
+            {
+                GameObject aiParent = currentLevel.transform.GetChild(i).gameObject;
+                SetAIControllerComponent(ref ai1Controller, aiParent, "AI_1");
+                SetAIControllerComponent(ref ai2Controller, aiParent, "AI_2");
+                SetAIControllerComponent(ref ai3Controller, aiParent, "AI_3");
+            }
+        }
+    }
+     void SetAIControllerComponent(ref AIController aiController, GameObject AIParent, string aiName)
+    {
+        for (int j = 0; j < AIParent.transform.childCount; j++)
+        {
+            if (AIParent.transform.GetChild(j).name.Equals(aiName))
+            {
+                aiController = AIParent.transform.GetChild(j).gameObject.GetComponentInChildren<AIController>();
+            }
+        }
     }
 }

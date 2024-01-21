@@ -17,6 +17,16 @@ public class CameraController : MonoBehaviour
     [SerializeField] Vector3 followOffset;
     private Vector3 tempFollowOffset;
 
+
+    [Header("High Speed Follow Offset")]
+    [SerializeField] Vector3 highSpeedFollowOffset = new Vector3(9.47903061f, 8.09588623f, -9.26142883f);
+    private float carSpeedCameraChangeThershold = 5f;
+    private Vector3 originalFollowOffset;
+
+    //Variables
+    GameObject activeVehicle;
+    Coroutine lerpRef;
+
     //Flags
     bool changeToNew = true;
 
@@ -27,11 +37,17 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
+        activeVehicle = null;
+
         cam = this.gameObject.GetComponent<CinemachineVirtualCamera>();
         cam.m_Lens.FieldOfView = startFOV;
 
         Transposer = cam.GetCinemachineComponent<CinemachineTransposer>();
         tempFollowOffset = Transposer.m_FollowOffset;
+
+        originalFollowOffset = Transposer.m_FollowOffset;
+
+        StartCoroutine(ChangeFollowOffset());
     }
     private void Update()
     {
@@ -72,8 +88,9 @@ public class CameraController : MonoBehaviour
     {
         if (cam.Follow.name != movementScript.CheckActiveVehicle("ref").name)
         {
-            cam.Follow = movementScript.CheckActiveVehicle("ref").transform;
-            cam.LookAt = movementScript.CheckActiveVehicle("ref").transform;
+            activeVehicle = movementScript.CheckActiveVehicle("ref");
+            cam.Follow = activeVehicle.transform;
+            cam.LookAt = activeVehicle.transform;
         }
     }
     #region On Click Change Camera
@@ -110,4 +127,60 @@ public class CameraController : MonoBehaviour
         cam.m_Lens.FieldOfView = startFOV;
         if (!gameObject.activeSelf) { gameObject.SetActive(true); }
     }
+
+    IEnumerator ChangeFollowOffset()
+    {
+        bool hasComponent = false;
+        activeVehicle = movementScript.CheckActiveVehicle("ref");
+        while (true)
+        {
+
+            if (activeVehicle.gameObject != null)
+            {
+                Debug.Log("Acitve Vehicle : " + activeVehicle.name);
+                if (activeVehicle.gameObject.name.Equals("Car") && hasComponent != true)
+                {
+                    CarMovementController carMovementControllerScript = activeVehicle.GetComponent<CarMovementController>();
+                    if (carMovementControllerScript != null)
+                    {
+                        hasComponent = true;
+                        if (hasComponent)
+                        {
+                            if (lerpRef != null)
+                                StopCoroutine(lerpRef);
+                            Transposer.m_FollowOffset = originalFollowOffset;
+                        }
+
+                        while (activeVehicle.activeSelf && activeVehicle.gameObject.name.Equals("Car"))
+                        {
+                            if (carMovementControllerScript.carSpeed > carSpeedCameraChangeThershold)
+                            {
+                                yield return new WaitForSeconds(1f);
+                                lerpRef = StartCoroutine(Lerp(Transposer.m_FollowOffset, highSpeedFollowOffset));
+                            }
+                            else
+                            {
+                                if (lerpRef != null)
+                                    StopCoroutine(lerpRef);
+                                StartCoroutine(Lerp(Transposer.m_FollowOffset, originalFollowOffset));
+                            }
+                            yield return null;
+                        }
+                    }
+                }
+                else
+                {
+                    StartCoroutine(Lerp(Transposer.m_FollowOffset, originalFollowOffset));
+                    //Transposer.m_FollowOffset = originalFollowOffset;
+                    hasComponent = false;
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Object is null. Please check and handle accordingly.");
+            }
+            yield return null;
+        }
+    }
+
 }

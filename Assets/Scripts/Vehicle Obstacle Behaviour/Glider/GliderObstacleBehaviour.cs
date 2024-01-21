@@ -25,19 +25,20 @@ public class GliderObstacleBehaviour : MonoBehaviour
     private bool startCoroutineRotate = true;
 
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (collision.gameObject.CompareTag("Obstacle"))
+        if (hit.gameObject.CompareTag("Jump"))
         {
-            //Stop Logic
+            Debug.Log("Jump Collider Triggered");
+            gliderMovementScript.allowJump = true;
+            StartCoroutine(gliderMovementScript.Jump());
         }
-        
+
         //Win Check
-        if (collision.gameObject.CompareTag("Win"))
+        if (hit.gameObject.CompareTag("Win"))
         {
             TriggerWinState();
         }
-
     }
 
     private void Update()

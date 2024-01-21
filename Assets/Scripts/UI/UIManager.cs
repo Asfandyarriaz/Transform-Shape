@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -148,11 +147,14 @@ public class UIManager : MonoBehaviour
     {
         GameManager.Instance.UpdateGameState(GameManager.GameState.Camera);
     }
+
+    //TODO: Changed Update From ProgressScreen to NextVehicleProgress
+    //Because progression screen buggy and have to skip for now 
     public void OnClickCashPanelContinue()
     {
         PlayerDataController.Instance.playerData.PlayerGold += defaultCashReward;
         PlayerDataController.Instance.Save();
-        GameManager.Instance.UpdateGameState(GameState.ProgressionScreen);
+        GameManager.Instance.UpdateGameState(GameState.NextVehicleProgress);
 
     }
     public void OnClickRemoveAdsButton()
